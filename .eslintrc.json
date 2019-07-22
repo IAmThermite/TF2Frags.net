@@ -16,5 +16,7 @@
         "sourceType": "module"
     },
     "rules": {
+        "max-len": 0,
+        "new-cap": 0
     }
 }
