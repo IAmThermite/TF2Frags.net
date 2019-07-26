@@ -2,9 +2,9 @@
 <html>
   <%- include('partials/head', {title: title}) %>
 
-  <div class='container'>
-    <% include partials/header.ejs %>
-
+  <% include partials/header.ejs %>
+  
+  <div class='container bg-dark text-light'>
     <% include partials/navbar %>
 
     <%- include(page) %>
