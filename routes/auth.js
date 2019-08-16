@@ -3,6 +3,8 @@ const router = require('express').Router();
 const SteamStrategy = require('passport-steam').Strategy;
 require('dotenv').config();
 
+const utils = require('../src/utils');
+
 passport.serializeUser((user, done) => {
   done(null, user);
 });
@@ -19,7 +21,7 @@ passport.use(new SteamStrategy({
 (identifier, profile, done) => {
   process.nextTick(() => {
     profile.identifier = identifier;
-    console.log(`User ${profile.id} logged in.`);
+    utils.log('info', `User ${profile.id} logged in.`);
     return done(null, profile);
   });
 }));
@@ -32,7 +34,7 @@ passport.use(new SteamStrategy({
 router.get('/steam',
     passport.authenticate('steam', {failureRedirect: '/'}),
     (req, res) => {
-      res.redirect('/');
+      return res.redirect('/');
     }
 );
 
@@ -46,16 +48,16 @@ router.get('/steam/return',
     },
     passport.authenticate('steam', {failureRedirect: '/'}),
     (req, res) => {
-      res.redirect('/');
+      return res.redirect('/');
     }
 );
 
 router.get('/logout', (req, res) => {
   req.session.destroy((error) => {
     if (error) {
-      console.log(error);
+      utils.log('error', error);
     }
-    res.redirect('/');
+    return res.redirect('/');
   });
 });
 

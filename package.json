@@ -4,7 +4,7 @@
   "description": "Code for TF2Frags Twitch and website",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "NODE_ENV=development nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,14 +20,18 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "config": "^3.2.2",
+    "connect-mongodb-session": "^2.2.0",
     "dotenv": "^8.0.0",
     "ejs": "^2.6.2",
+    "emoji-flags": "^1.2.0",
     "env": "0.0.2",
     "express": "^4.17.1",
     "express-fileupload": "^1.1.5",
     "express-session": "^1.16.2",
     "express-ws": "^4.0.0",
     "helmet": "^3.19.0",
+    "mongodb": "^3.3.0",
+    "morgan": "^1.9.1",
     "obs-websocket-js": "^3.1.0",
     "passport": "^0.4.0",
     "passport-steam": "^1.0.10"

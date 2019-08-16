@@ -6,18 +6,21 @@ const path = require('path');
 const passport = require('passport');
 const fileUpload = require('express-fileupload');
 const config = require('config');
+const morgan = require('morgan');
 
+const db = require('./src/db');
 const utils = require('./src/utils');
 const routes = require('./routes');
+
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 require('dotenv').config();
 
 const app = express();
 require('express-ws')(app);
 
-const port = process.env.PORT || 3000;
-
 app.use(helmet());
+app.use(morgan('combined'));
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -30,11 +33,20 @@ app.use(fileUpload({
   tempFileDir: '/tmp/',
 }));
 
+const store = new MongoDBStore({
+  uri: config.get('dbUrl'),
+  collection: 'sessions',
+});
+
 app.set('trust proxy', 1); // trust first proxy
 app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
+  store,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+  },
 }));
 
 app.set('view engine', 'ejs');
@@ -53,6 +65,13 @@ app.ws('/socket', utils.ensureAuthenticated, utils.canUserView, (ws, req) => {
   });
 });
 
-app.listen(config.get('port'), () => {
-  utils.log('info', `Server started on port ${port}`);
+db.connectToServer((err) => {
+  if (err) throw new Error(err);
+  app.listen(config.get('port'), () => {
+    utils.log('info', `Server started on port ${config.get('port')}`);
+  });
+});
+
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at:', p, 'reason:', reason);
 });

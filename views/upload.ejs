@@ -1,18 +1,29 @@
 <h2>Upload</h2>
+<p>
 <form action='/manage/upload' method='post' encType="multipart/form-data">
   <div class="form-group">
-    <label for="name">Clip Name</label>
-    <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" required/>
-    <small id="nameHelp" class="form-text text-muted">Give the clip a name.</small>
+    <label for="name">Clip Name <span style="color: red">*</span></label>
+    <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" required maxLength="20"/>
+    <small id="nameHelp" class="form-text text-muted">Give the clip a name (max 20 chars).</small>
   </div>
   <div class="form-group">
     <label for="description">Clip Description</label>
-    <input type="text" class="form-control" id="description" name="description" required/>
+    <input type="text" class="form-control" id="description" name="description" maxLength="100" />
+  </div>
+  <div class="form-group">
+    <label for="description">Your Alias <span style="color: red">*</span></label>
+    <input type="text" class="form-control" aria-describedby="aliasHelp" id="alias" name="alias" required maxLength="30" />
+    <small id="countryHelp" class="form-text text-muted">If left blank your current alias will be used</small>
+  </div>
+  <div class="form-group">
+    <label for="description"><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3#Current_codes">Country Code</a></label>
+    <input type="text" class="form-control" aria-describedby="countryHelp" id="country" name="country" minLength="3" maxLength="3" />
+    <small id="countryHelp" class="form-text text-muted"><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3#Current_codes">Your 3 letter country code.</a></small>
   </div>
   <div class="custom-file">
-    <label for="file">Choose a file</label>
-    <input type="file" id="file" aria-describedby="fileHelp" name="file" required/>
-    <small id="fileHelp" class="form-text text-muted">Max 100MB</small>
+    <label for="file">Choose a file <span style="color: red">*</span></label>
+    <input type="file" id="file" aria-describedby="fileHelp" name="file" required />
+    <small id="fileHelp" class="form-text text-muted">Max 100MB, accepted files: Source Demos, videos</small>
   </div>
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>

@@ -1,1 +1,21 @@
-<p>Manage</p>
+<h2>Manage</h2>
+<table class="table text-light">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col" width="40%">Description</th>
+      <th scope="col">Uploaded at</th>
+      <th scope="col">Type</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% for(let i = 0; i < data.clips.length; i++) { %>
+    <tr>
+      <td><%= data.clips[i].name%></td>
+      <td><%= data.clips[i].description%></td>
+      <td><%= data.clips[i].uploadedAt%></td>
+      <td><%= data.clips[i].type%></td>
+    </tr>
+  <% } %>
+  </tbody>
+</table>

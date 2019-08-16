@@ -1,6 +1,6 @@
 module.exports = {
   render: (req, res, page, title, data) => {
-    res.render('template', {
+    return res.render('template', {
       title,
       page,
       user: req.user,
@@ -10,14 +10,14 @@ module.exports = {
 
   renderError: (req, res, code, message) => {
     res.status(code);
-    res.render('error', {code, message});
+    return res.render('error', {code, message});
   },
 
   ensureAuthenticated: (req, res, next) => {
     if (req.isAuthenticated()) {
       next();
     } else {
-      res.redirect('/auth/steam');
+      return res.redirect('/auth/steam');
     }
   },
 
@@ -34,11 +34,11 @@ module.exports = {
       next();
     } else {
       res.status(403);
-      res.render('error', {code: 403, message: 'Bugger off, this is my toy!'});
+      return res.render('error', {code: 403, message: 'Bugger off, this is my toy!'});
     }
   },
 
   log: (level, message) => {
-    console.log(`${level} | ${message}`);
+    console.log(`${level.toUpperCase()} | ${message}`);
   },
 };

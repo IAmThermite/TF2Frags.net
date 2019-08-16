@@ -1,4 +1,6 @@
 {
   "port": 3000,
-  "fileLocation": "~/Downloads"
+  "dbUrl": "mongodb://localhost:27017/",
+  "db": "tf2frags",
+  "fileLocation": "/tmp"
 }
