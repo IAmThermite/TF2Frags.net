@@ -5,7 +5,7 @@ let db;
 
 module.exports = {
   connectToServer: (callback) => {
-    MongoClient.connect(config.get('dbUrl'), {useNewUrlParser: true, useUnifiedTopology: true}, ( err, client ) => {
+    MongoClient.connect(config.get('db.url'), {useNewUrlParser: true, useUnifiedTopology: true}, ( err, client ) => {
       db = client.db('tf2frags');
       return callback(err);
     } );

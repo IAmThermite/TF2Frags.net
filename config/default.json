@@ -1,6 +1,15 @@
 {
-  "port": 3000,
-  "dbUrl": "mongodb://localhost:27017/",
-  "db": "tf2frags",
-  "fileLocation": "/tmp"
+  "app": {
+    "port": 3000,
+    "fileLocation": "/tmp"
+  },
+  "db": {
+    "url": "mongodb://localhost:27017/tf2frags",
+    "database": "tf2frags"
+  },
+  "steam": {
+    "apiKey": "",
+    "returnUrl": "http://localhost:3000/auth/steam/return",
+    "realm": "http://localhost:3000"
+  }
 }

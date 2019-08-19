@@ -9,15 +9,13 @@ const config = require('config');
 const morgan = require('morgan');
 
 const db = require('./src/db');
+
 const utils = require('./src/utils');
 const routes = require('./routes');
 
 const MongoDBStore = require('connect-mongodb-session')(session);
 
-require('dotenv').config();
-
 const app = express();
-require('express-ws')(app);
 
 app.use(helmet());
 app.use(morgan('combined'));
@@ -31,10 +29,15 @@ app.use(fileUpload({
   },
   useTempFiles: true,
   tempFileDir: '/tmp/',
+  abortOnLimit: true, // won't set req.files when too large
+  limitHandler: (req, res, next) => {
+    utils.renderError(req, res, 413, 'File size too large! (Max 100MB)');
+    next();
+  },
 }));
 
 const store = new MongoDBStore({
-  uri: config.get('dbUrl'),
+  uri: config.get('db.url'),
   collection: 'sessions',
 });
 
@@ -59,19 +62,13 @@ app.use(passport.session());
 
 app.use('/', routes);
 
-app.ws('/socket', utils.ensureAuthenticated, utils.canUserView, (ws, req) => {
-  ws.on('message', (msg) => {
-    console.log(msg);
-  });
-});
-
 db.connectToServer((err) => {
-  if (err) throw new Error(err);
-  app.listen(config.get('port'), () => {
-    utils.log('info', `Server started on port ${config.get('port')}`);
-  });
-});
+  if (err) {
+    utils.log('error', 'Could not connect to database');
+    return;
+  }
 
-process.on('unhandledRejection', (reason, p) => {
-  console.log('Unhandled Rejection at:', p, 'reason:', reason);
+  app.listen(config.get('app.port'), () => {
+    utils.log('info', `Server started on port ${config.get('app.port')}`);
+  });
 });

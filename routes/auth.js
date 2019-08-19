@@ -1,7 +1,7 @@
 const passport = require('passport');
+const config = require('config');
 const router = require('express').Router();
 const SteamStrategy = require('passport-steam').Strategy;
-require('dotenv').config();
 
 const utils = require('../src/utils');
 
@@ -16,7 +16,7 @@ passport.deserializeUser((obj, done) => {
 passport.use(new SteamStrategy({
   returnURL: 'http://localhost:3000/auth/steam/return',
   realm: 'http://localhost',
-  apiKey: process.env.STEAM_APIKEY,
+  apiKey: config.get('steam.apiKey'),
 },
 (identifier, profile, done) => {
   process.nextTick(() => {
