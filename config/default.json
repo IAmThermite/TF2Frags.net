@@ -9,7 +9,7 @@
   },
   "steam": {
     "apiKey": "",
-    "returnUrl": "http://localhost:3000/auth/steam/return",
+    "returnUrl": "/auth/steam/return",
     "realm": "http://localhost:3000"
   }
 }
