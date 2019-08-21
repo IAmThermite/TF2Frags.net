@@ -11,5 +11,8 @@
     "apiKey": "",
     "returnUrl": "/auth/steam/return",
     "realm": "http://localhost:3000"
+  },
+  "twitch": {
+    "channel": "tf2frags"
   }
 }
