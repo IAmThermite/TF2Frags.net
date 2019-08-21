@@ -10,12 +10,22 @@
   </thead>
   <tbody>
   <% for(let i = 0; i < data.clips.length; i++) { %>
-    <tr>
-      <td><%= data.clips[i].name%></td>
-      <td><%= data.clips[i].description%></td>
-      <td><%= data.clips[i].uploadedAt%></td>
-      <td><%= data.clips[i].type%></td>
-    </tr>
+    <% if (data.clips[i].type="url") { %>
+      <tr>
+        <td><%= data.clips[i].name%></td>
+        <td><a href="https://youtu.be/<%= data.clips[i].url %>">https://youtu.be/<%= data.clips[i].url%></a></td>
+        <td><%= data.clips[i].uploadedAt%></td>
+        <td><%= data.clips[i].type%></td>
+      </tr>
+
+    <% } else {%>
+      <tr>
+        <td><%= data.clips[i].name%></td>
+        <td><%= data.clips[i].description%></td>
+        <td><%= data.clips[i].uploadedAt%></td>
+        <td><%= data.clips[i].type%></td>
+      </tr>
+    <% } %>
   <% } %>
   </tbody>
 </table>

@@ -1,29 +1,97 @@
 <h2>Upload</h2>
-<p>
-<form action='/manage/upload' method='post' encType="multipart/form-data">
-  <div class="form-group">
-    <label for="name">Clip Name <span style="color: red">*</span></label>
-    <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" required maxLength="20"/>
-    <small id="nameHelp" class="form-text text-muted">Give the clip a name (max 20 chars).</small>
+<p>Currently only URLs (YouTube) are supported by the stream. Feel free to upload other clips as they will still be used at some point.</p>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="url-tab" data-toggle="tab" href="#url" role="tab" aria-controls="url" aria-selected="true">URL</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="demo-tab" data-toggle="tab" href="#demo" role="tab" aria-controls="demo" aria-selected="false">Demo</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="video-tab" data-toggle="tab" href="#video" role="tab" aria-controls="video" aria-selected="false">Video</a>
+  </li>
+</ul>
+
+<div class="tab-content">
+  <!-- url form -->
+  <div class="tab-pane fade show active" id="url" role="tabpanel" aria-labelledby="url-tab">
+    <form action='/manage/upload' method='post' encType="multipart/form-data">
+      <div class="form-group">
+        <label for="name">Clip Name <span style="color: red">*</span></label>
+        <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" required maxLength="20"/>
+        <small id="nameHelp" class="form-text text-muted">Give the clip a name (max 20 chars). Used by you so you can track the clips you have uploaded.</small>
+      </div>
+      <div class="form-group">
+        <label for="url">URL <span style="color: red">*</span></label>
+        <input type="text" class="form-control" id="url" aria-describedby="urlHelp" name="url" required maxLength="100"/>
+        <small id="urlHelp" class="form-text text-muted">Currently accepted: YouTube</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    <form>
   </div>
-  <div class="form-group">
-    <label for="description">Clip Description</label>
-    <input type="text" class="form-control" id="description" name="description" maxLength="100" />
+
+  <!-- demo form -->
+  <div class="tab-pane fade" id="demo" role="tabpanel" aria-labelledby="demo-tab">
+    <form action='/manage/upload' method='post' encType="multipart/form-data">
+      <div class="form-group">
+        <label for="name">Clip Name <span style="color: red">*</span></label>
+        <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" required maxLength="20"/>
+        <small id="nameHelp" class="form-text text-muted">Give the clip a name (max 20 chars).</small>
+      </div>
+      <div class="form-group">
+        <label for="description">Clip Description</label>
+        <input type="text" class="form-control" id="description" name="description" maxLength="100" />
+      </div>
+      <div class="form-group">
+        <label for="description">Your Alias <span style="color: red">*</span></label>
+        <input type="text" class="form-control" aria-describedby="aliasHelp" id="alias" name="alias" required maxLength="30" />
+      </div>
+      <div class="form-group">
+        <label for="description">Tick pairs <span style="color: red">*</span></label>
+        <textarea class="form-control" aria-describedby="tickHelp" id="ticks" name="ticks" required placeholder="START END&#10;START END&#10;START END" rows="4"></textarea>
+        <small id="tickHelp" class="form-text text-muted">Space separated, each pair on a new line</small>
+      </div>
+      <div class="form-group">
+        <label for="description"><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3#Current_codes">Country Code</a></label>
+        <input type="text" class="form-control" aria-describedby="countryHelp" id="country" name="country" minLength="3" maxLength="3" />
+        <small id="countryHelp" class="form-text text-muted"><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3#Current_codes">Your 3 letter country code.</a></small>
+      </div>
+      <div class="custom-file">
+        <label for="file">Choose a file <span style="color: red">*</span></label>
+        <input type="file" id="file" aria-describedby="fileHelp" name="file" required />
+        <small id="fileHelp" class="form-text text-muted">Max 100MB, accepted files: Source Demos (.dem)</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
   </div>
-  <div class="form-group">
-    <label for="description">Your Alias <span style="color: red">*</span></label>
-    <input type="text" class="form-control" aria-describedby="aliasHelp" id="alias" name="alias" required maxLength="30" />
-    <small id="countryHelp" class="form-text text-muted">If left blank your current alias will be used</small>
+
+  <!-- video form -->
+  <div class="tab-pane fade" id="video" role="tabpanel" aria-labelledby="video-tab">
+    <form action='/manage/upload' method='post' encType="multipart/form-data">
+      <div class="form-group">
+        <label for="name">Clip Name <span style="color: red">*</span></label>
+        <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name" required maxLength="20"/>
+        <small id="nameHelp" class="form-text text-muted">Give the clip a name (max 20 chars).</small>
+      </div>
+      <div class="form-group">
+        <label for="description">Clip Description</label>
+        <input type="text" class="form-control" id="description" name="description" maxLength="100" />
+      </div>
+      <div class="form-group">
+        <label for="description">Your Alias <span style="color: red">*</span></label>
+        <input type="text" class="form-control" aria-describedby="aliasHelp" id="alias" name="alias" required maxLength="30" />
+      </div>
+      <div class="form-group">
+        <label for="description"><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3#Current_codes">Country Code</a></label>
+        <input type="text" class="form-control" aria-describedby="countryHelp" id="country" name="country" minLength="3" maxLength="3" />
+        <small id="countryHelp" class="form-text text-muted"><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3#Current_codes">Your 3 letter country code.</a></small>
+      </div>
+      <div class="custom-file">
+        <label for="file">Choose a file <span style="color: red">*</span></label>
+        <input type="file" id="file" aria-describedby="fileHelp" name="file" required />
+        <small id="fileHelp" class="form-text text-muted">Max 100MB, accepted files: Videos</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
   </div>
-  <div class="form-group">
-    <label for="description"><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3#Current_codes">Country Code</a></label>
-    <input type="text" class="form-control" aria-describedby="countryHelp" id="country" name="country" minLength="3" maxLength="3" />
-    <small id="countryHelp" class="form-text text-muted"><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3#Current_codes">Your 3 letter country code.</a></small>
-  </div>
-  <div class="custom-file">
-    <label for="file">Choose a file <span style="color: red">*</span></label>
-    <input type="file" id="file" aria-describedby="fileHelp" name="file" required />
-    <small id="fileHelp" class="form-text text-muted">Max 100MB, accepted files: Source Demos, videos</small>
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+</div>

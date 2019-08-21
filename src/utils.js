@@ -1,3 +1,5 @@
+const config = require('config');
+
 module.exports = {
   render: (req, res, page, title, data) => {
     return res.render('template', {
@@ -24,4 +26,20 @@ module.exports = {
   log: (level, message) => {
     console.log(`${level.toUpperCase()} | ${message}`);
   },
+
+  saveFile: (userId, file, fileName, extension) => new Promise((resolve, reject) => {
+    // Does the directory exist?
+    if (!fs.existsSync(`${config.get('app.fileLocation')}/${userId}`)) {
+      fs.mkdirSync(`${config.get('app.fileLocation')}/${userId}`);
+    }
+
+    // Move file
+    file.mv(`${config.get('app.fileLocation')}/${userId}/${fileName}.${extension}`, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  }),
 };
