@@ -4,7 +4,7 @@
     "fileLocation": "/tmp"
   },
   "db": {
-    "url": "mongodb://localhost:27017/tf2frags",
+    "url": "mongodb://username:password@localhost:27017/tf2frags",
     "database": "tf2frags"
   },
   "steam": {
