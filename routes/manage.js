@@ -1,3 +1,4 @@
+const xss = require('xss');
 const router = require('express').Router();
 
 const utils = require('../src/utils');
@@ -18,34 +19,40 @@ router.get('/upload', utils.ensureAuthenticated, (req, res) => {
 router.post('/upload', utils.ensureAuthenticated, (req, res) => {
   const uploadedAt = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
 
-  if (req.files) { // will not exist if file too large
+
+  const document = {
+    uploadedBy: req.user.id,
+    alias: xss(req.body.alias),
+    name: xss(req.body.name),
+    description: xss(req.body.description),
+    country: xss(req.body.country),
+    uploadedAt,
+    lastPlayed: uploadedAt,
+    error: 0,
+    reported: 0,
+  };
+
+  if (req.files && !req.body.url) { // will not exist if file too large
     const fileName = `${req.user.id}_${req.body.name}_${uploadedAt}`;
     const file = req.files.file;
     let extension;
 
-    const pairs = req.body.ticks.split('\r\n');
     const ticks = [];
-    pairs.forEach((element) => {
-      const elems = element.split(' ');
-      if (elems.length === 2 && elems[0] < elems[1]) { // start tick less than end tick
-        ticks.push({start: elems[0], end: elems[1]});
-      }
-    });
-
-    const document = {
-      uploadedBy: req.user.id,
-      alias: req.body.alias,
-      name: req.body.name,
-      description: req.body.description,
-      country: req.body.country,
-      uploadedAt,
-      lastPlayed: uploadedAt,
-    };
+    if (req.body.ticks) {
+      const pairs = req.body.ticks.split('\r\n');
+      pairs.forEach((element) => {
+        const elems = element.split(' ');
+        if (elems.length === 2 && elems[0] < elems[1]) { // start tick less than end tick
+          ticks.push({start: elems[0], end: elems[1]});
+        }
+      });
+    }
 
     // check the type of file uploaded
     if (file.mimetype === 'application/octet-stream') { // demos are a hex file
       extension = 'dem';
       document.type = 'demo';
+      document.ticks = ticks;
     } else if (file.mimetype.startsWith('video/')) { // videos
       extension = file.name.substring(file.name.lastIndexOf('.'), file.name.length); // file extension
       document.type = 'video';
@@ -70,44 +77,57 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
       utils.log('error', err);
       return utils.renderError(req, res, 500, 'Failed to move file, contact developer for more');
     });
-  } else if (req.body.url) { // url uploading
-    // valid youtube url
-    if (req.body.url.startsWith('https://www.youtube.com/watch?')
-          || req.body.url.startsWith('https://youtube.com/watch?')
-          || req.body.url.startsWith('https://youtu.be/')) {
-      const url = new URL(req.body.url);
-      url.searchParams.get('v');
-      const code = url.searchParams.get('v'); // extract the video id from the provided url (could be lots of different things)
-
-      db.getDb().collection('clips').findOne({url: code}, (err, result) => {
-        if (err) {
-          return utils.renderError(req, res, 500, 'Could not save URL! Contact developer for more');
-        }
-        if (result) {
-          return utils.renderError(req, res, 400, 'URL already saved!');
-        }
-
-        const document = {
-          name: req.body.name,
-          uploadedBy: req.user.id,
-          type: 'url',
-          url: code,
-          uploadedAt,
-          lastPlayed: uploadedAt,
-        };
-
-        // upload clip to db
-        db.getDb().collection('clips').insertOne(document, (err, result) => {
-          if (err) {
-            utils.log('error', err);
-            return utils.renderError(req, res, 500, 'Failed to save URL, contact developer for more');
+  } else if (req.body.url && !req.files) { // url uploading
+    // valid url
+    try {
+      const url = new URL(req.body.url.trim());
+      // valid twitch or youtube url
+      if (url.host === 'www.youtube.com'
+            || url.host === 'youtube.com'
+            || url.host === 'youtu.be'
+            || url.host === 'clips.twitch.tv') {
+        let code;
+        if (url.host === 'clips.twitch.tv') {
+          document.error = 1; // twitch clips currently dont work so do this for now
+          code = url.pathname.substr(1, url.pathname.length).split('/')[0];
+        } else { // must be youtube
+          if (url.host === 'youtu.be') {
+            code = url.pathname.substr(1, url.pathname.length).split('/')[0];
           } else {
-            return res.redirect('/manage/upload');
+            code = url.searchParams.get('v'); // extract the video id from the provided url (could be lots of different things)
           }
+        }
+
+        if (!code) { // no code found
+          return utils.renderError(req, res, 400, 'Not a valid Twitch or YouTube URL');
+        }
+
+        db.getDb().collection('clips').findOne({code}, (err, result) => { // check to see the clip exists already
+          if (err) {
+            return utils.renderError(req, res, 500, 'Could not save URL, contact developer for more');
+          }
+          if (result) {
+            return utils.renderError(req, res, 400, 'URL already saved!');
+          }
+          document.type = 'url';
+          document.url = xss(url.href);
+          document.code = xss(code);
+
+          // upload clip to db
+          db.getDb().collection('clips').insertOne(document, (err, result) => { // insert in db
+            if (err) {
+              utils.log('error', err);
+              return utils.renderError(req, res, 500, 'Failed to save URL, contact developer for more');
+            } else {
+              return res.redirect('/manage/upload');
+            }
+          });
         });
-      });
-    } else {
-      return utils.renderError(req, res, 400, 'Not an valid/acceptable YouTube URL');
+      } else {
+        return utils.renderError(req, res, 400, 'Not a valid Twitch or YouTube URL');
+      }
+    } catch (error) {
+      utils.renderError(req, res, 400, 'Invalid URL');
     }
   } else {
     return utils.renderError(req, res, 400, 'Bad Request');
