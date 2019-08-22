@@ -1,4 +1,18 @@
+@font-face {
+  font-family: 'TF2Build';
+  src: url('../fonts/tf2build.ttf');
+}
+@font-face {
+  font-family: 'TF2';
+  src: url('../fonts/TF2.ttf');
+}
+
 .container {
   padding: 1em;
   border-radius: 1em;
+}
+.header {
+  font-family: 'TF2', 'Arial';
+  color: #c38c3d;
+  margin-bottom: 1em;
 }
