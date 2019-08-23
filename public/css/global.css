@@ -8,11 +8,12 @@
 }
 
 .container {
+  font-family: 'TF2Build', 'Arial', sans-serif;
   padding: 1em;
   border-radius: 1em;
 }
 .header {
-  font-family: 'TF2', 'Arial';
+  font-family: 'TF2', 'Arial', sans-serif;
   color: #c38c3d;
   margin-bottom: 1em;
 }
