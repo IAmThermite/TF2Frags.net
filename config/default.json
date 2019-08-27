@@ -15,5 +15,9 @@
   },
   "twitch": {
     "channel": "tf2frags"
+  },
+  "recaptcha":{
+    "siteKey": "recaptcha_site_key",
+    "secretKey": "recaptcha_secret_key"
   }
 }

@@ -31,6 +31,7 @@
     "morgan": "^1.9.1",
     "passport": "^0.4.0",
     "passport-steam": "^1.0.10",
+    "request": "^2.88.0",
     "xss": "^1.0.6"
   },
   "devDependencies": {

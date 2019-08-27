@@ -26,6 +26,7 @@
         <input type="text" class="form-control" id="url" aria-describedby="urlHelp" name="url" required maxLength="100"/>
         <small id="urlHelp" class="form-text text-muted">Currently accepted: YouTube</small>
       </div>
+      <div class="g-recaptcha" data-sitekey="<%= data.key %>"></div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </div>
@@ -61,6 +62,7 @@
         <input type="file" id="file" aria-describedby="fileHelp" name="file" required />
         <small id="fileHelp" class="form-text text-muted">Max 100MB, accepted files: Source Demos (.dem)</small>
       </div>
+      <div class="g-recaptcha" data-sitekey="<%= data.key %>"></div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </div>
@@ -91,7 +93,10 @@
         <input type="file" id="file" aria-describedby="fileHelp" name="file" required />
         <small id="fileHelp" class="form-text text-muted">Max 100MB, accepted files: Videos</small>
       </div>
+      <div class="g-recaptcha" data-sitekey="<%= data.key %>"></div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </div>
 </div>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>

@@ -1,4 +1,6 @@
 const xss = require('xss');
+const config = require('config');
+const request = require('request');
 const router = require('express').Router();
 
 const utils = require('../src/utils');
@@ -13,12 +15,24 @@ router.get('/', utils.ensureAuthenticated, (req, res) => {
 });
 
 router.get('/upload', utils.ensureAuthenticated, (req, res) => {
-  return utils.render(req, res, 'upload', 'Upload', {});
+  return utils.render(req, res, 'upload', 'Upload', {key: config.get('recaptcha.siteKey')});
 });
 
 router.post('/upload', utils.ensureAuthenticated, (req, res) => {
-  const uploadedAt = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
+  if (!req.body['g-recaptcha-response']) {
+    return res.send('Please veryify that you are not a BOT');
+  }
+  const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.get('recaptcha.secretKey')}&response=${req.body['g-recaptcha-response']}&remoteip=${req.connection.remoteAddress}}`;
 
+  request(verificationUrl, (err, response, body) => {
+    body = JSON.parse(body);
+    console.log(body);
+    if (!body.success) {
+      return res.send('VERIFICATION FAILED');
+    }
+  });
+
+  const uploadedAt = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
 
   const document = {
     uploadedBy: req.user.id,
@@ -127,7 +141,7 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
         return utils.renderError(req, res, 400, 'Not a valid Twitch or YouTube URL');
       }
     } catch (error) {
-      utils.renderError(req, res, 400, 'Invalid URL');
+      return utils.renderError(req, res, 400, 'Invalid URL');
     }
   } else {
     return utils.renderError(req, res, 400, 'Bad Request');
