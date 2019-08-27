@@ -26,7 +26,6 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
 
   request(verificationUrl, (err, response, body) => {
     body = JSON.parse(body);
-    console.log(body);
     if (!body.success) {
       return res.send('VERIFICATION FAILED');
     }
