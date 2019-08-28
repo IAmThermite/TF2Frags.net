@@ -7,4 +7,8 @@ router.get('/', (req, res) => {
   return utils.render(req, res, 'index', 'Home', {channel: config.get('twitch.channel')});
 });
 
+router.get('/about', (req, res) => {
+  return utils.render(req, res, 'about', 'About', {});
+});
+
 module.exports = router;
