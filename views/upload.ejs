@@ -15,6 +15,7 @@
 <div class="tab-content">
   <!-- url form -->
   <div class="tab-pane fade show active" id="url" role="tabpanel" aria-labelledby="url-tab">
+    <p class="text-muted small">Limitations: Currently twitch clip embeds are stupid and don't function the same way as normal videos do. This means that there is no real way to detect when they finish. Twitch clips will be limited to 30 seconds and then automatically skip regardless of how long it actually is. Check to see if the YouTube video is actually embedable, sometimes it won't be in which case it will not be played on the stream.</p>
     <form action='/manage/upload' method='post' encType="multipart/form-data">
       <div class="form-group">
         <label for="name">Clip Name <span style="color: red">*</span></label>
