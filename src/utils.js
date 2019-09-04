@@ -1,4 +1,5 @@
 const config = require('config');
+const fs = require('fs');
 
 module.exports = {
   render: (req, res, page, title, data) => {
