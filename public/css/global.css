@@ -7,6 +7,10 @@
   src: url('../fonts/TF2.ttf');
 }
 
+h3 {
+  text-decoration: underline;
+}
+
 .container {
   font-family: 'TF2Build', 'Arial', sans-serif;
   padding: 1em;

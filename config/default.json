@@ -19,5 +19,10 @@
   "recaptcha":{
     "siteKey": "recaptcha_site_key",
     "secretKey": "recaptcha_secret_key"
+  },
+  "aws": {
+    "keyId": "aws_access_key_id",
+    "keySecret": "aws_secret_access_key",
+    "bucketName": "bucket"
   }
 }

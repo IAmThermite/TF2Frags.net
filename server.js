@@ -27,7 +27,7 @@ app.use(fileUpload({
   limits: {
     fileSize: 100000000, // 100mb
   },
-  useTempFiles: true,
+  useTempFiles: false,
   tempFileDir: '/tmp/',
   abortOnLimit: true, // won't set req.files when too large
   limitHandler: (req, res, next) => {

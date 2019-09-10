@@ -1,6 +1,7 @@
 const xss = require('xss');
 const config = require('config');
 const request = require('request');
+const mongo = require('mongodb');
 const router = require('express').Router();
 
 const utils = require('../src/utils');
@@ -18,6 +19,15 @@ router.get('/upload', utils.ensureAuthenticated, (req, res) => {
   return utils.render(req, res, 'upload', 'Upload', {key: config.get('recaptcha.siteKey')});
 });
 
+router.get('/delete/:id', utils.ensureAuthenticated, (req, res) => {
+  db.getDb().collection('clips').deleteOne({_id: new mongo.ObjectID(req.params.id), uploadedBy: req.user.id}).then((output) => {
+    return res.redirect('/manage');
+  }).catch((err) => {
+    utils.log('error', err);
+    return utils.renderError(req, res, 500, 'Failed to delete clip, contact developer for more.');
+  });
+});
+
 router.post('/upload', utils.ensureAuthenticated, (req, res) => {
   if (!req.body['g-recaptcha-response']) {
     return res.send('Please veryify that you are not a BOT');
@@ -27,6 +37,8 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
   request(verificationUrl, (err, response, body) => {
     body = JSON.parse(body);
     if (!body.success) {
+      utils.log('error', err);
+      utils.log('error', response);
       return res.send('VERIFICATION FAILED');
     }
   });
@@ -84,11 +96,11 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
     });
 
     // save the file
-    utils.saveFile(req.user.id, file, fileName, extension).then(() => {
+    utils.saveFile(req.user.id, file, fileName, extension).then((data) => {
       return res.redirect('/manage/upload');
     }).catch((err) => {
       utils.log('error', err);
-      return utils.renderError(req, res, 500, 'Failed to move file, contact developer for more');
+      return utils.renderError(req, res, 500, 'Failed to save file, contact developer for more');
     });
   } else if (req.body.url && !req.files) { // url uploading
     // valid url
