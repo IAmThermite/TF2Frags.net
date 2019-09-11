@@ -1,6 +1,7 @@
 const config = require('config');
 // const fs = require('fs');
 const AWS = require('aws-sdk');
+const mongo = require('mongodb');
 
 const db = require('./db');
 
@@ -83,13 +84,28 @@ module.exports = {
         reject(error);
       });
     } else {
-      resolve(currentClip);
+      // is current clip still ok?
+      db.getDb().collection('clips').find({_id: new mongo.ObjectId(currentClip._id), error: 0, reported: 0}).limit(1).toArray().then((output) => {
+        if (output[0]) {
+          resolve(currentClip);
+        } else {
+          // update current clip
+          db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+            currentClip = output[0];
+            resolve(currentClip);
+          }).catch((error) => {
+            reject(error);
+          });
+        }
+      }).catch((error) => {
+        reject(error);
+      });
     }
   }),
 
   getNextClip: (type) => new Promise((resolve, reject) => {
     db.getDb().collection('clips').find({type, error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
-      console.log(output)
+      currentClip = output[0];
       resolve(output[0]);
     }).catch((error) => {
       reject(error);
