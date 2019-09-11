@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/clips', utils.validApiKey, (req, res) => {
-  db.getDb().collection('clips').find({error: 0, reported: 0}).project({name: 1, url: 1, lastPlayed: 1, fileName: 1, _id: 0}).toArray().then((output) => {
+  db.getDb().collection('clips').find({}).toArray().then((output) => {
     return res.send(output);
   }).catch((error) => {
     utils.log('error', error);
@@ -25,7 +25,7 @@ router.get('/clips/count', (req, res) => {
   });
 });
 
-router.get('/clips/current', async (req, res) => {
+router.get('/clips/current', utils.validApiKey, async (req, res) => {
   utils.getCurrentClip().then((output) => {
     return res.send(output);
   }).catch((error) => {
@@ -34,15 +34,15 @@ router.get('/clips/current', async (req, res) => {
   });
 });
 
-router.get('/clips/type/:type', (req, res) => {
-  db.getDb().collection('clips').find({type: req.params.type, error: 0, reported: 0}).project({name: 1, url: 1, lastPlayed: 1, _id: 0}).toArray().then((output) => {
+router.get('/clips/previous', async (req, res) => {
+  db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({lastPlayed: -1, uploadedAt: -1}).limit(1).toArray().then((output) => {
     return res.send(output);
   }).catch((error) => {
-    return res.send({error: {code: 500, message: 'Internal server error, contact developer'}});
+    utils.log('error', error);
+    return res.send({error: {code: 500, message: 'Could not get previous clip'}});
   });
 });
 
-// requires api auth
 router.post('/clips/next', utils.validApiKey, (req, res) => {
   const lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
   db.getDb().collection('clips').updateOne({'_id': new mongo.ObjectID(req.body._id)}, {$set: {lastPlayed}}).then((output) => {
@@ -60,7 +60,15 @@ router.post('/clips/next', utils.validApiKey, (req, res) => {
   });
 });
 
-// requires api auth
+router.get('/clips/:_id', utils.validApiKey, (req, res) => {
+  db.getDb().collection('clips').find({_id: new mongo.ObjectId(req.params._id)}).limit(1).toArray().then((output) => {
+    return res.send(output[0]);
+  }).catch((error) => {
+    utils.log('error', error);
+    return res.send({error: {code: 500, message: 'Internal server error, contact developer'}});
+  });
+});
+
 router.post('/clips/:_id', utils.validApiKey, (req, res) => {
   const lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
   const error = req.body.error | 0;
