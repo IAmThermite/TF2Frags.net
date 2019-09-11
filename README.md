@@ -3,21 +3,25 @@ Code for TF2Frags Website
 
 ## API Schema
 
-### GET /api/clips
+### GET /api/clips (requires authorization)
 
-Lists a condensed version of all valid clips
+Lists all clips
+
+### GET /api/clips/:\_id (requires authorization)
+
+Lists details about specfic clip
 
 ### GET /api/clips/count
 
 Returns the amount of valid clips submitted
 
-### GET /api/clips/current
+### GET /api/clips/current (requires authorization)
 
 Returns extra information about the current clip
 
-### GET /api/clips/type/:type
+### GET /api/clips/previous
 
-Retrieves the clips by type
+Returns some information about the previous clip
 
 ### POST /api/clips/next (requires authorization)
 
