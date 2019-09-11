@@ -20,10 +20,26 @@ router.get('/upload', utils.ensureAuthenticated, (req, res) => {
 });
 
 router.get('/delete/:id', utils.ensureAuthenticated, (req, res) => {
-  db.getDb().collection('clips').deleteOne({_id: new mongo.ObjectID(req.params.id), uploadedBy: req.user.id}).then((output) => {
-    return res.redirect('/manage');
+  db.getDb().collection('clips').find({_id: new mongo.ObjectID(req.params.id), uploadedBy: req.user.id}).toArray().then((output) => {
+    if (output[0]) {
+      if (output[0].type === 'video' || output[0].type === 'url') {
+        utils.deleteFile(req.user.id, output[0].fileName).then(() => { // delete from storage
+          db.getDb().collection('clips').deleteOne({_id: new mongo.ObjectID(req.params.id), uploadedBy: req.user.id}).then((output) => {
+            return res.redirect('/manage');
+          }).catch((err) => {
+            utils.log('error', err);
+            return utils.renderError(req, res, 500, 'Failed to delete clip, contact developer for more.');
+          });
+        }).catch((err) => {
+          utils.log('error', err);
+          return utils.renderError(req, res, 500, 'Failed to delete clip, contact developer for more.');
+        });
+      }
+    } else {
+      return utils.renderError(req, res, 404, 'Could not find clip');
+    }
   }).catch((err) => {
-    utils.log('error', err);
+    utils.log('error', error);
     return utils.renderError(req, res, 500, 'Failed to delete clip, contact developer for more.');
   });
 });
@@ -62,22 +78,23 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
     const file = req.files.file;
     let extension;
 
-    const ticks = [];
-    if (req.body.ticks) {
-      const pairs = req.body.ticks.split('\r\n');
-      pairs.forEach((element) => {
-        const elems = element.split(' ');
-        if (elems.length === 2 && elems[0] < elems[1]) { // start tick less than end tick
-          ticks.push({start: elems[0], end: elems[1]});
-        }
-      });
-    }
-
     // check the type of file uploaded
     if (file.mimetype === 'application/octet-stream') { // demos are a hex file
       extension = 'dem';
       document.type = 'demo';
-      document.ticks = ticks;
+      const ticks = [];
+      if (req.body.ticks) {
+        const pairs = req.body.ticks.split('\r\n');
+        pairs.forEach((element) => {
+          const elems = element.split(' ');
+          if (elems.length === 2 && elems[0] < elems[1]) { // start tick less than end tick
+            ticks.push({start: elems[0], end: elems[1]});
+          }
+        });
+      } else { // no ticks
+        return utils.renderError(req, res, 400, 'Please include tick');
+      }
+      document.ticks = ticks; // probably should do some validation here
     } else if (file.mimetype.startsWith('video/')) { // videos
       extension = file.name.substring(file.name.lastIndexOf('.'), file.name.length); // file extension
       document.type = 'video';
@@ -88,16 +105,14 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
     document.fileName = `${fileName}.${extension}`;
 
     // save to db
-    db.getDb().collection('clips').insertOne(document, (err, res) => {
-      if (err) {
+    db.getDb().collection('clips').insertOne(document).then((data) => {
+      // save the file
+      utils.saveFile(req.user.id, file, fileName, extension).then(() => {
+        return res.redirect('/manage/upload');
+      }).catch((err) => {
         utils.log('error', err);
         return utils.renderError(req, res, 500, 'Failed to upload file, contact developer for more');
-      }
-    });
-
-    // save the file
-    utils.saveFile(req.user.id, file, fileName, extension).then((data) => {
-      return res.redirect('/manage/upload');
+      });
     }).catch((err) => {
       utils.log('error', err);
       return utils.renderError(req, res, 500, 'Failed to save file, contact developer for more');

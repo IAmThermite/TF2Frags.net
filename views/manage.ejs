@@ -30,7 +30,7 @@
     <% } else {%>
       <tr>
         <td><%= data.clips[i].name%></td>
-        <td><%= data.clips[i].description%></td>
+        <td><%= data.clips[i].description%><br /><%= data.clips[0].fileName %></td>
         <td><%= data.clips[i].uploadedAt%></td>
         <td><%= data.clips[i].lastPlayed %></td>
         <td><%= data.clips[i].type%></td>

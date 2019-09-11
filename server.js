@@ -66,6 +66,8 @@ db.connectToServer((err) => {
   if (err) {
     utils.log('error', 'Could not connect to database');
     return;
+  } else {
+    utils.log('info', 'Connected to database');
   }
 
   app.listen(config.get('app.port'), () => {

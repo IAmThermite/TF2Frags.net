@@ -55,4 +55,12 @@ module.exports = {
       reject(error);
     });
   }),
+
+  deleteFile: (userId, fileName) => new Promise((resolve, reject) => {
+    s3.deleteObject({Bucket: config.get('aws.bucketName'), Key: `clips/${userId}/${fileName}`}).promise().then((data) => {
+      resolve(data);
+    }).catch((error) => {
+      reject(error);
+    });
+  }),
 };
