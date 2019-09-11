@@ -8,7 +8,7 @@ AWS.config.update({region: 'us-west-2'});
 
 const s3 = new AWS.S3({accessKeyId: config.get('aws.keyId'), secretAccessKey: config.get('aws.keySecret')});
 
-const currentClip = {};
+let currentClip = undefined;
 
 const log = (level, message) => {
   console.log(`${level.toUpperCase()} | ${message}`);
@@ -74,10 +74,22 @@ module.exports = {
     currentClip = clip;
   },
 
-  getCurrentClip: () => currentClip,
+  getCurrentClip: () => new Promise((resolve, reject) => {
+    if (!currentClip) {
+      db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+        currentClip = output[0];
+        resolve(currentClip);
+      }).catch((error) => {
+        reject(error);
+      });
+    } else {
+      resolve(currentClip);
+    }
+  }),
 
   getNextClip: (type) => new Promise((resolve, reject) => {
-    db.collection('clips').find({type, error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+    db.getDb().collection('clips').find({type, error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+      console.log(output)
       resolve(output[0]);
     }).catch((error) => {
       reject(error);

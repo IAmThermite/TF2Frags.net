@@ -7,6 +7,7 @@ const passport = require('passport');
 const fileUpload = require('express-fileupload');
 const config = require('config');
 const morgan = require('morgan');
+const cors = require('cors');
 
 const db = require('./src/db');
 
@@ -19,6 +20,7 @@ const app = express();
 
 app.use(helmet());
 app.use(morgan('combined'));
+app.use(cors());
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
