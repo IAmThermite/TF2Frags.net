@@ -43,6 +43,15 @@ router.get('/clips/previous', async (req, res) => {
   });
 });
 
+router.get('/clips/queue', (req, res) => {
+  db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).project({_id: 0, url: 1}).limit(20).toArray().then((output) => {
+    return res.send(output);
+  }).catch((error) => {
+    utils.log('error', error);
+    return res.send({error: {code: 500, message: 'Could not get queue'}});
+  });
+});
+
 router.post('/clips/next', utils.validApiKey, (req, res) => {
   const lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
   db.getDb().collection('clips').updateOne({'_id': new mongo.ObjectID(req.body._id)}, {$set: {lastPlayed}}).then((output) => {
