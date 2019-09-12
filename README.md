@@ -3,7 +3,7 @@ Code for TF2Frags Website
 
 ## API Schema
 
-### GET /api/clips (requires authorization)
+### GET /api/clips
 
 Lists all clips
 
@@ -15,7 +15,11 @@ Lists details about specfic clip
 
 Returns the amount of valid clips submitted
 
-### GET /api/clips/current (requires authorization)
+### GET /api/clips/queue
+
+Returns the next 20 clips in the queue
+
+### GET /api/clips/current
 
 Returns extra information about the current clip
 
@@ -25,7 +29,7 @@ Returns some information about the previous clip
 
 ### POST /api/clips/next (requires authorization)
 
-Updates the current clips and loads the next on
+Updates the current clips and loads the next one
 
 ### POST /api/clips/:\_id (requires authorization)
 

@@ -8,7 +8,7 @@ router.get('/', (req, res) => {
   res.send({});
 });
 
-router.get('/clips', utils.validApiKey, (req, res) => {
+router.get('/clips', (req, res) => {
   db.getDb().collection('clips').find({}).toArray().then((output) => {
     return res.send(output);
   }).catch((error) => {
@@ -25,7 +25,7 @@ router.get('/clips/count', (req, res) => {
   });
 });
 
-router.get('/clips/current', utils.validApiKey, async (req, res) => {
+router.get('/clips/current', (req, res) => {
   utils.getCurrentClip().then((output) => {
     return res.send(output);
   }).catch((error) => {
@@ -34,7 +34,7 @@ router.get('/clips/current', utils.validApiKey, async (req, res) => {
   });
 });
 
-router.get('/clips/previous', async (req, res) => {
+router.get('/clips/previous', (req, res) => {
   db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({lastPlayed: -1, uploadedAt: -1}).limit(1).toArray().then((output) => {
     return res.send(output);
   }).catch((error) => {
@@ -44,7 +44,7 @@ router.get('/clips/previous', async (req, res) => {
 });
 
 router.get('/clips/queue', (req, res) => {
-  db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).project({_id: 0, url: 1}).limit(20).toArray().then((output) => {
+  db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).project({_id: 0, name: 1, url: 1}).limit(20).toArray().then((output) => {
     return res.send(output);
   }).catch((error) => {
     utils.log('error', error);
