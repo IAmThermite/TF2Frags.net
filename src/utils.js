@@ -10,10 +10,52 @@ AWS.config.update({region: 'us-west-2'});
 const s3 = new AWS.S3({accessKeyId: config.get('aws.keyId'), secretAccessKey: config.get('aws.keySecret')});
 
 let currentClip = undefined;
+let previousClip = undefined;
 
 const log = (level, message) => {
   console.log(`${level.toUpperCase()} | ${message}`);
 };
+
+const getCurrentClip = () => new Promise((resolve, reject) => {
+  if (!currentClip) {
+    db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+      currentClip = output[0];
+      resolve(currentClip);
+    }).catch((error) => {
+      reject(error);
+    });
+  } else {
+    // is current clip still ok?
+    db.getDb().collection('clips').find({_id: new mongo.ObjectID(currentClip._id), error: 0, reported: 0}).limit(1).toArray().then((output) => {
+      if (output[0]) {
+        resolve(currentClip);
+      } else {
+        // update current clip
+        db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+          currentClip = output[0];
+          resolve(currentClip);
+        }).catch((error) => {
+          reject(error);
+        });
+      }
+    }).catch((error) => {
+      reject(error);
+    });
+  }
+});
+
+const getPreviousClip = () => new Promise((resolve, reject) => {
+  if (!previousClip) {
+    db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: -1, lastPlayed: -1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+      previousClip = output[0];
+      resolve(previousClip);
+    }).catch((error) => {
+      reject(error);
+    });
+  } else {
+    resolve(previousClip);
+  }
+});
 
 module.exports = {
   render: (req, res, page, title, data) => {
@@ -75,37 +117,22 @@ module.exports = {
     currentClip = clip;
   },
 
-  getCurrentClip: () => new Promise((resolve, reject) => {
-    if (!currentClip) {
-      db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
-        currentClip = output[0];
-        resolve(currentClip);
-      }).catch((error) => {
-        reject(error);
-      });
-    } else {
-      // is current clip still ok?
-      db.getDb().collection('clips').find({_id: new mongo.ObjectId(currentClip._id), error: 0, reported: 0}).limit(1).toArray().then((output) => {
-        if (output[0]) {
-          resolve(currentClip);
-        } else {
-          // update current clip
-          db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
-            currentClip = output[0];
-            resolve(currentClip);
-          }).catch((error) => {
-            reject(error);
-          });
-        }
-      }).catch((error) => {
-        reject(error);
-      });
-    }
-  }),
+  getCurrentClip: getCurrentClip,
 
-  getNextClip: (type) => new Promise((resolve, reject) => {
-    db.getDb().collection('clips').find({type, error: 0, reported: 0}).sort({lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+  getPreviousClip: getPreviousClip,
+
+  updateToNextClip: () => new Promise((resolve, reject) => {
+    getCurrentClip().then((output) => {
+      previousClip = currentClip;
       currentClip = output[0];
+      while (output.code !== previousClip.code) {
+        db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, lastPlayed: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+          currentClip = output[0];
+        }).catch((error) => {
+          reject(error);
+          return;
+        });
+      }
       resolve(output[0]);
     }).catch((error) => {
       reject(error);

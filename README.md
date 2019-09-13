@@ -5,9 +5,9 @@ Code for TF2Frags Website
 
 ### GET /api/clips
 
-Lists all clips
+Lists all clips in a condensed form, sorted by last uploaded
 
-### GET /api/clips/:\_id (requires authorization)
+### GET /api/clips/:\_id
 
 Lists details about specfic clip
 
@@ -26,6 +26,10 @@ Returns extra information about the current clip
 ### GET /api/clips/previous
 
 Returns some information about the previous clip
+
+### GET /api/clips/randomise (requires authorization)
+
+Randomises the order of the clips
 
 ### POST /api/clips/next (requires authorization)
 
