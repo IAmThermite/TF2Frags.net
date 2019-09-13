@@ -4,6 +4,7 @@
   "description": "Code for TF2Frags Twitch and website",
   "main": "app.js",
   "scripts": {
+    "start": "NODE_ENV=production pm2 start server.js --watch --env production",
     "dev": "NODE_ENV=development nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
