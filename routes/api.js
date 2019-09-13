@@ -46,7 +46,7 @@ router.get('/clips/previous', (req, res) => {
 });
 
 router.get('/clips/queue', (req, res) => {
-  db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, lastPlayed: 1, uploadedAt: 1}).limit(20).toArray().then((output) => {
+  db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, lastPlayed: 1, uploadedAt: 1}).project({_id: 0, name: 1, url: 1, lastPlayed: 1}).limit(20).toArray().then((output) => {
     return res.send(output);
   }).catch((error) => {
     utils.log('error', error);
@@ -60,7 +60,7 @@ router.post('/clips/next', utils.validApiKey, (req, res) => {
   utils.getCurrentClip().then((output) => {
     // order number needs to be greater than number of clips
     const order = output.order + Math.floor(Math.random() * 1000) + 1000; // add at least 1000 to the order (between 1000 and 2099)
-    return db.getDb().collection('clips').updateOne({'_id': new mongo.ObjectID(req.body._id)}, {$set: {order, lastPlayed}});
+    return db.getDb().collection('clips').updateOne({'_id': new mongo.ObjectID(output._id)}, {$set: {order, lastPlayed}});
   }).then((output) => {
     utils.log('info', `Next clip called: ${JSON.stringify(output.result)}`);
     return utils.updateToNextClip();
