@@ -71,6 +71,7 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
     lastPlayed: uploadedAt,
     error: 0,
     reported: 0,
+    order: Math.floor(Math.random() * 1000),
   };
 
   if (req.files && !req.body.url) { // will not exist if file too large
