@@ -129,7 +129,6 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
             || url.host === 'clips.twitch.tv') {
         let code;
         if (url.host === 'clips.twitch.tv') {
-          document.error = 1; // twitch clips currently dont work so do this for now
           code = url.pathname.substr(1, url.pathname.length).split('/')[0];
         } else { // must be youtube
           if (url.host === 'youtu.be') {
