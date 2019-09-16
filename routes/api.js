@@ -53,7 +53,8 @@ router.get('/clips/queue', (req, res) => {
     return res.send({error: {code: 400, message: 'Limit parameter must be >= 0'}});
   }
 
-  const limit = Number.parseInt(req.query.limit) || 50;
+  // does the parameter have a value, if so use it
+  const limit = req.query.limit ? Number.parseInt(req.query.limit) : 50;
   db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, lastPlayed: 1, uploadedAt: 1}).project({_id: 0, name: 1, url: 1, lastPlayed: 1, order: 1}).limit(limit).toArray().then((output) => {
     return res.send(output);
   }).catch((error) => {
