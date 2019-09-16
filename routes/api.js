@@ -48,7 +48,7 @@ router.get('/clips/previous', (req, res) => {
 });
 
 router.get('/clips/queue', (req, res) => {
-  if (!req.params.limit || !Number.isInteger(Number.parseInt(req.query.limit)) || !Number.parseInt(req.query.limit) >= 0) {
+  if (!req.query.limit || !Number.isInteger(Number.parseInt(req.query.limit)) || !Number.parseInt(req.query.limit) >= 0) {
     res.status(400);
     return res.send({error: {code: 400, message: 'Limit parameter must be >= 0'}});
   }
