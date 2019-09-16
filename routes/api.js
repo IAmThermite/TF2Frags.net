@@ -64,16 +64,6 @@ router.get('/clips/queue', (req, res) => {
   });
 });
 
-router.get('/clips/:_id', (req, res) => {
-  db.getDb().collection('clips').find({_id: new mongo.ObjectID(req.params._id)}).limit(1).toArray().then((output) => {
-    return res.send(output[0]);
-  }).catch((error) => {
-    utils.log('error', error);
-    res.status(500);
-    return res.send({error: {code: 500, message: 'Internal server error, contact developer'}});
-  });
-});
-
 router.get('/clips/randomise', utils.validApiKey, (req, res) => {
   utils.log('info', 'Randomise clips called');
   db.getDb().collection('clips').find({}).toArray().then((output) => {
@@ -105,6 +95,16 @@ router.get('/clips/error', utils.validApiKey, (req, res) => {
 router.get('/clips/reported', utils.validApiKey, (req, res) => {
   db.getDb().collection('clips').find({reported: 1}).toArray().then((output) => {
     return res.send(output);
+  }).catch((error) => {
+    utils.log('error', error);
+    res.status(500);
+    return res.send({error: {code: 500, message: 'Internal server error, contact developer'}});
+  });
+});
+
+router.get('/clips/:_id', (req, res) => {
+  db.getDb().collection('clips').find({_id: new mongo.ObjectID(req.params._id)}).limit(1).toArray().then((output) => {
+    return res.send(output[0]);
   }).catch((error) => {
     utils.log('error', error);
     res.status(500);
