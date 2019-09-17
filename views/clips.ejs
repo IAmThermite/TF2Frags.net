@@ -1,0 +1,30 @@
+<h2><%= data.header %></h2>
+<table class="table text-light">
+  <thead>
+    <tr>
+      <th scope="col" maxWidth="10%">Name</th>
+      <th scope="col" width="40%">Description</th>
+      <th scope="col">Uploaded at</th>
+      <th scope="col">Last played</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% for(let i = 0; i < data.clips.length; i++) { %>
+    <% if (data.clips[i].type === "url") { %>
+      <tr>
+        <td><%= data.clips[i].name%></td>
+        <td><a href="<%= data.clips[i].url %>"><%= data.clips[i].url%></a></td>
+        <td><%= data.clips[i].uploadedAt%></td>
+        <td><%= data.clips[i].lastPlayed %></td>
+      </tr>
+    <% } else {%>
+      <tr>
+        <td><%= data.clips[i].name%></td>
+        <td><%= data.clips[i].description%><br /><%= data.clips[0].fileName %></td>
+        <td><%= data.clips[i].uploadedAt%></td>
+        <td><%= data.clips[i].lastPlayed %></td>
+      </tr>
+    <% } %>
+  <% } %>
+  </tbody>
+</table>

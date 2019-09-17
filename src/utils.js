@@ -72,6 +72,11 @@ module.exports = {
     return res.render('template', {title: 'error', user: req.user, page: 'error', code, message});
   },
 
+  sendError: (req, res, code, message) => {
+    res.status(code);
+    return res.send({error: {code, message}});
+  },
+
   ensureAuthenticated: (req, res, next) => {
     if (req.isAuthenticated()) {
       next();
@@ -156,5 +161,9 @@ module.exports = {
       res.status(500);
       return res.send({error: {code: 500, message: 'Something went wrong, contact developer'}});
     });
+  },
+
+  requireAdmin: (req, res, next) => {
+    next();
   },
 };
