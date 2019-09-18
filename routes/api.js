@@ -1,9 +1,7 @@
-const mongo = require('mongodb');
 const xss = require('xss');
 const router = require('express').Router();
 
 const utils = require('../src/utils');
-const db = require('../src/db');
 
 const ClipController = require('../contollers/clip');
 
@@ -107,10 +105,10 @@ router.post('/clips/next', utils.validApiKey, (req, res) => {
   ClipController.getCurrent().then((output) => {
     // order number needs to be greater than number of clips
     const order = output.order + Math.floor(Math.random() * 1000) + 1000; // add at least 1000 to the order (between 1000 and 2099)
-    return db.getDb().collection('clips').updateOne({'_id': new mongo.ObjectID(output._id)}, {$set: {order, lastPlayed}});
+    return ClipController.updateOne(output._id, {order, lastPlayed});
   }).then((output) => {
     utils.log('info', `Next clip called: ${JSON.stringify(output.result)}`);
-    return utils.updateToNextClip();
+    return ClipController.updateToNextClip();
   }).then((output) => {
     return ClipController.setCurrent(output);
   }).then((output) => {

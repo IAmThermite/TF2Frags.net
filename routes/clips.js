@@ -50,7 +50,7 @@ router.get('/queue', (req, res) => {
 });
 
 router.get('/error', utils.requireAdmin, (req, res) => {
-  db.getDb().collection('clips').find({error: 1}).toArray().then((output) => {
+  ClipController.getAll({error: 1}).then((output) => {
     return utils.render(req, res, 'clips', 'Errored Clips', {clips: output, header: 'Errored'});
   }).catch((error) => {
     utils.log('error', error);
@@ -59,7 +59,7 @@ router.get('/error', utils.requireAdmin, (req, res) => {
 });
 
 router.get('/reported', utils.requireAdmin, (req, res) => {
-  db.getDb().collection('clips').find({reported: 1}).toArray().then((output) => {
+  ClipController.getAll({reported: 1}).then((output) => {
     return utils.render(req, res, 'clips', 'Reported Clips', {clips: output, header: 'Reported'});
   }).catch((error) => {
     utils.log('error', error);

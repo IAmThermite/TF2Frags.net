@@ -169,7 +169,9 @@ const updateToNextClip = () => new Promise((resolve, reject) => {
   const lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
   const order = currentClip.order + Math.floor(Math.random() * 1000) + 1000; // add at least 1000 to the order (between 1000 and 2099)
   // update current clip
-  updateOne(output._id, {order, lastPlayed}).then((output) => {
+  getCurrent().then((output) => {
+    return updateOne(output._id, {order, lastPlayed});
+  }).then((output) => {
     // get next clip direct from db
     return getNext();
   }).then((output) => {
