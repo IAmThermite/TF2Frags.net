@@ -11,9 +11,10 @@ let previousClip = undefined;
  * @param {object} body the db query
  * @param {object} sort the db sort
  * @param {object} projection which feilds are to be included in the result
+ * @param {Number} limit the limit to the number of clips to get
  * @return {Promise}
  */
-const getAll = (body, sort, projection) => db.getDb().collection('clips').find(body).project(projection).sort(sort).toArray();
+const getAll = (body, sort, projection, limit) => db.getDb().collection('clips').find(body).project(projection).sort(sort).limit(limit).toArray();
 
 /**
  * Gets all the clips uploaded by a specific user
