@@ -93,6 +93,7 @@ module.exports = {
   },
 
   requireAdmin: (req, res, next) => {
-    next();
+    return res.renderError(req, res, 403, 'Not allowed to view this page');
+    // next();
   },
 };
