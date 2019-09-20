@@ -14,7 +14,11 @@ let previousClip = undefined;
  * @param {Number} limit the limit to the number of clips to get
  * @return {Promise}
  */
-const getAll = (body, sort, projection, limit) => db.getDb().collection('clips').find(body).project(projection).sort(sort).limit(limit).toArray();
+const getAll = (body, sort, projection, limit) => {
+  limit = limit | 0;
+  if (!projection) projection = {};
+  return db.getDb().collection('clips').find(body).project(projection).sort(sort).limit(limit).toArray();
+};
 
 /**
  * Gets all the clips uploaded by a specific user
@@ -30,21 +34,39 @@ const getAllByUser = (userId) => db.getDb().collection('clips').find({uploadedBy
  * @param {object} projection which feilds are to be included in the result
  * @return {Promise}
  */
-const getOne = (_id, sort, projection) => db.getDb().collection('clips').find({_id: new mongo.ObjectId(_id)}).project(projection).sort(sort).limit(1).toArray();
+const getOne = (_id, sort) => new Promise((resolve, reject) => {
+  db.getDb().collection('clips').find({_id: new mongo.ObjectId(_id)}).sort(sort).limit(1).toArray().then((output) => {
+    resolve(output[0]);
+  }).catch((error) => {
+    reject(error);
+  });
+});
 
 /**
  * Get the clip based on the code field
  * @param {string} code the code of the clip
  * @return {Promise}
  */
-const getOneByCode = (code) => db.getDb().collection('clips').find({code}).limit(1).toArray();
+const getOneByCode = (code) => new Promise((resolve, reject) => {
+  db.getDb().collection('clips').find({code}).limit(1).toArray().then((output) => {
+    resolve(output[0]);
+  }).catch((error) => {
+    reject(error);
+  });
+});
 
 /**
  * Get the clip based on the url provided
  * @param {string} url the code of the clip
  * @return {Promise}
  */
-const getOneByURL = (url) => db.getDb().collection('clips').find({url}).limit(1).toArray();
+const getOneByURL = (url) => new Promise((resolve, reject) => {
+  db.getDb().collection('clips').find({url}).limit(1).toArray().then((output) => {
+    resolve(output[0]);
+  }).catch((error) => {
+    reject(error);
+  });
+});
 
 /**
  * Get the number of documents that match the query
@@ -57,7 +79,13 @@ const getCount = (body) => db.getDb().collection('clips').countDocuments(body);
  * Get the clip that is the top of the list in terms of order and last played
  * @return {Promise}
  */
-const getNext = () => db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, lastPlayed: 1, uploadedAt: 1}).limit(1).toArray();
+const getNext = () => new Promise((resolve, reject) => {
+  db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
+    resolve(output[0]);
+  }).catch((error) => {
+    reject(error);
+  });
+});
 
 /**
  * Get the current cached clip. Will check to see if it is still valid and caches it when it is invalid
@@ -66,19 +94,19 @@ const getNext = () => db.getDb().collection('clips').find({type: 'url', error: 0
 const getCurrent = () => new Promise((resolve, reject) => {
   if (!currentClip) {
     getNext().then((output) => {
-      currentClip = output[0];
+      currentClip = output;
       resolve(currentClip);
     }).catch((error) => {
       reject(error);
     });
   } else {
     // is current clip still ok?
-    db.getDb().collection('clips').find({_id: new mongo.ObjectID(currentClip._id), error: 0, reported: 0}).project({_id: 0}).limit(1).toArray().then((output) => {
+    db.getDb().collection('clips').find({_id: new mongo.ObjectID(currentClip._id), error: 0, reported: 0}).limit(1).toArray().then((output) => {
       if (output[0]) {
         resolve(currentClip);
       } else {
         // update current clip
-        db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, lastPlayed: 1, uploadedAt: 1}).project({_id: 0}).limit(1).toArray().then((output) => {
+        db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, uploadedAt: 1}).limit(1).toArray().then((output) => {
           currentClip = output[0];
           resolve(currentClip);
         }).catch((error) => {
@@ -105,7 +133,7 @@ const setCurrent = (clip) => {
  */
 const getPrevious = () => new Promise((resolve, reject) => {
   if (!previousClip) {
-    db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: -1, lastPlayed: -1, uploadedAt: 1}).project({_id: 0}).limit(1).toArray().then((output) => {
+    db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: -1, uploadedAt: 1}).project().limit(1).toArray().then((output) => {
       previousClip = output[0];
       resolve(previousClip);
     }).catch((error) => {
@@ -124,8 +152,7 @@ const getPrevious = () => new Promise((resolve, reject) => {
  */
 const getQueue = (limit, projection) => {
   if (!projection) projection = {};
-  projection._id = 0;
-  return db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, lastPlayed: 1, uploadedAt: 1}).project(projection).limit(limit || 50).toArray();
+  return db.getDb().collection('clips').find({type: 'url', error: 0, reported: 0}).sort({order: 1, uploadedAt: 1}).project(projection).limit(limit || 50).toArray();
 };
 
 /**
@@ -155,7 +182,7 @@ const randomise = () => new Promise((resolve, reject) => {
  */
 const addOne = (body) => new Promise((resolve, reject) => {
   db.getDb().collection('clips').insertOne(body).then((output) => {
-    resolve(output);
+    resolve(output.result);
   }).catch((error) => {
     reject(error);
   });
@@ -190,7 +217,13 @@ const updateToNextClip = () => new Promise((resolve, reject) => {
  * @param {object} body the body of the document to set
  * @return {Promise}
  */
-const updateOne = (_id, body) => db.getDb().collection('clips').updateOne({_id: new mongo.ObjectID(_id)}, {$set: body});
+const updateOne = (_id, body) => new Promise((resolve, reject) => {
+  db.getDb().collection('clips').updateOne({_id: new mongo.ObjectID(_id)}, {$set: body}).then((output) => {
+    resolve(output);
+  }).catch((error) => {
+    reject(error);
+  });
+});
 
 /**
  * Update multiple clips
@@ -198,14 +231,26 @@ const updateOne = (_id, body) => db.getDb().collection('clips').updateOne({_id: 
  * @param {object} body body of the document to set
  * @return {Promise}
  */
-const updateMany = (where, body) => db.getDb().collection('clips').updateMany(where, {$set: body});
+const updateMany = (where, body) => new Promise((resolve, reject) => {
+  db.getDb().collection('clips').updateMany(where, {$set: body}).then((output) => {
+    resolve(output.result);
+  }).catch((error) => {
+    reject(error);
+  });
+});
 
 /**
  * Delete a clip from the db
  * @param {string} _id the id to delete
  * @return {Promise}
  */
-const deleteOne = (_id) => db.getDb().collection('clips').deleteOne({_id});
+const deleteOne = (_id) => new Promise((resolve, reject) => {
+  db.getDb().collection('clips').deleteOne({_id}).then((output) => {
+    resolve(output.result);
+  }).catch((error) => {
+    reject(error);
+  });
+});
 
 module.exports = {
   getAll,
