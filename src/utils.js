@@ -93,7 +93,8 @@ module.exports = {
   },
 
   requireAdmin: (req, res, next) => {
-    return utils.renderError(req, res, 403, 'Not allowed to view this page');
+    res.status(403);
+    return res.render('template', {title: 'error', user: req.user, page: 'error', code: 403, message: 'Not allowed to view this page'});
     // next();
   },
 };
