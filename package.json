@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_ENV=production pm2 start server.js --watch --env production",
     "dev": "NODE_ENV=development nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_ENV=test nyc --reporter=lcov --reporter=text mocha --recursive tests/**/*.test.js  --exit"
   },
   "repository": {
     "type": "git",
@@ -38,7 +38,11 @@
     "xss": "^1.0.6"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
     "eslint": "^6.1.0",
-    "eslint-config-google": "^0.13.0"
+    "eslint-config-google": "^0.13.0",
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1"
   }
 }

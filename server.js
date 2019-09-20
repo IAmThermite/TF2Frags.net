@@ -76,3 +76,5 @@ db.connectToServer((err) => {
     utils.log('info', `Server started on port ${config.get('app.port')}`);
   });
 });
+
+module.exports = app;
