@@ -15,6 +15,7 @@ h3 {
   font-family: 'TF2Build', 'Arial', sans-serif;
   padding: 1em;
   border-radius: 1em;
+  max-width: 80%;
 }
 .header {
   font-family: 'TF2', 'Arial', sans-serif;

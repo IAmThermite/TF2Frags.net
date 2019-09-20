@@ -1,5 +1,6 @@
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
   <ul class="navbar-nav">
+    <li class="nav-item"><a class="nav-link" href="/clips/">All</a></li>
     <li class="nav-item"><a class="nav-link" href="/clips/queue">Queue</a></li>
     <li class="nav-item"><a class="nav-link" href="/clips/current">Current</a></li>
     <li class="nav-item"><a class="nav-link" href="/clips/previous">Previous</a></li>
@@ -29,3 +30,4 @@
   <% } %>
 <% } %>
 <p>Uploaded at: <%= data.clip.uploadedAt %> | Last played: <%= data.clip.lastPlayed %></p>
+<p><a href="https://steamcommunity.com/profiles/<%= data.clip.uploadedBy %>">Uploader</a></p>

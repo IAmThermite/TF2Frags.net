@@ -23,7 +23,6 @@ router.get('/', (req, res) => {
 
 router.get('/current', (req, res) => {
   ClipController.getCurrent().then((output) => {
-    console.log(output);
     return utils.render(req, res, 'clip', 'Current Clip', {clip: output});
   }).catch((error) => {
     utils.log('error', error);
@@ -67,6 +66,18 @@ router.get('/error', utils.ensureAuthenticated, utils.requireAdmin, (req, res) =
 router.get('/reported', utils.ensureAuthenticated, utils.requireAdmin, (req, res) => {
   ClipController.getAll({reported: 1}).then((output) => {
     return utils.render(req, res, 'clips', 'Reported Clips', {clips: output, header: 'Reported'});
+  }).catch((error) => {
+    utils.log('error', error);
+    return utils.renderError(req, res, 500, 'Internal server error, contact developer');
+  });
+});
+
+router.get('/:code', utils.ensureAuthenticated, utils.requireAdmin, (req, res) => {
+  ClipController.getOneByCode(req.params.code).then((output) => {
+    if (!output) {
+      return utils.renderError(req, res, 404, 'Clip not found!');
+    }
+    return utils.render(req, res, 'clip', `Clip ${output.name}`, {clip: output});
   }).catch((error) => {
     utils.log('error', error);
     return utils.renderError(req, res, 500, 'Internal server error, contact developer');
