@@ -1,0 +1,31 @@
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+  <ul class="navbar-nav">
+    <li class="nav-item"><a class="nav-link" href="/clips/queue">Queue</a></li>
+    <li class="nav-item"><a class="nav-link" href="/clips/current">Current</a></li>
+    <li class="nav-item"><a class="nav-link" href="/clips/previous">Previous</a></li>
+  </ul>
+</nav>
+<h3><%= data.clip.name %></h3>
+<p class="title">Type: <%= data.clip.type %></p>
+<% if(data.clip.type === 'url') { %>
+  <% if(data.clip.url.includes('youtu')) { %>
+    <iframe
+      width="100%"
+      height="600"
+      src="https://www.youtube.com/embed/<%= data.clip.code %>"
+      frameborder="0"
+      gesture="media"
+      allow="encrypted-media"
+      allowfullscreen>
+    </iframe>
+  <% } else { %>
+    <iframe
+      src="https://clips.twitch.tv/embed?clip=<%- data.clip.code %>"
+      height="600"
+      width="100%"
+      frameborder="0"
+      allowfullscreen="true">
+    </iframe>
+  <% } %>
+<% } %>
+<p>Uploaded at</p>

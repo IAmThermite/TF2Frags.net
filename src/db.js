@@ -15,7 +15,5 @@ module.exports = {
   /**
    * @return {mongo.Db} db
    */
-  getDb: () => {
-    return db;
-  },
+  getDb: () => db,
 };
