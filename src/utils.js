@@ -48,9 +48,9 @@ module.exports = {
     // if (!fs.existsSync(`${config.get('app.fileLocation')}/${userId}`)) {
     //   fs.mkdirSync(`${config.get('app.fileLocation')}/${userId}`);
     // }
-    // file.mv(`${config.get('app.fileLocation')}/${userId}/${fileName}.${extension}`, (err) => {
-    //   if (err) {
-    //     reject(err);
+    // file.mv(`${config.get('app.fileLocation')}/${userId}/${fileName}.${extension}`, (error) => {
+    //   if (error) {
+    //     reject(error);
     //   } else {
     //     resolve();
     //   }

@@ -72,7 +72,7 @@ router.get('/reported', utils.ensureAuthenticated, utils.requireAdmin, (req, res
   });
 });
 
-router.get('/:code', utils.ensureAuthenticated, utils.requireAdmin, (req, res) => {
+router.get('/:code', utils.ensureAuthenticated, (req, res) => {
   ClipController.getOneByCode(req.params.code).then((output) => {
     if (!output) {
       return utils.renderError(req, res, 404, 'Clip not found!');

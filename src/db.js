@@ -6,9 +6,9 @@ let db;
 
 module.exports = {
   connectToServer: (callback) => {
-    MongoClient.connect(config.get('db.url'), {useNewUrlParser: true, useUnifiedTopology: true}, ( err, client ) => {
+    MongoClient.connect(config.get('db.url'), {useNewUrlParser: true, useUnifiedTopology: true}, (error, client ) => {
       db = client.db(config.get('db.database'));
-      return callback(err);
+      return callback(error);
     });
   },
 

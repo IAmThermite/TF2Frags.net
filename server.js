@@ -64,8 +64,8 @@ app.use(passport.session());
 
 app.use('/', routes);
 
-db.connectToServer((err) => {
-  if (err) {
+db.connectToServer((error) => {
+  if (error) {
     utils.log('error', 'Could not connect to database');
     return;
   } else {

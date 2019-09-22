@@ -129,7 +129,7 @@ const setCurrent = (clip) => {
 
 /**
  * Get the previous cached clip
- * @return {{Promise}}
+ * @return {Promise}
  */
 const getPrevious = () => new Promise((resolve, reject) => {
   if (!previousClip) {
@@ -163,8 +163,8 @@ const randomise = () => new Promise((resolve, reject) => {
   db.getDb().collection('clips').find({}).toArray().then((output) => {
     output.forEach((clip) => {
       // randomise order (1-100)
-      db.getDb().collection('clips').updateOne({_id: new mongo.ObjectID(clip._id)}, {$set: {order: Math.floor(Math.random() * 100) + 1}}).catch((err) => {
-        utils.log('error', err);
+      db.getDb().collection('clips').updateOne({_id: new mongo.ObjectID(clip._id)}, {$set: {order: Math.floor(Math.random() * 100) + 1}}).catch((error) => {
+        utils.log('error', error);
         reject(error);
       });
     });
@@ -245,7 +245,7 @@ const updateMany = (where, body) => new Promise((resolve, reject) => {
  * @return {Promise}
  */
 const deleteOne = (_id) => new Promise((resolve, reject) => {
-  db.getDb().collection('clips').deleteOne({_id}).then((output) => {
+  db.getDb().collection('clips').deleteOne({_id: new mongo.ObjectId(_id)}).then((output) => {
     resolve(output.result);
   }).catch((error) => {
     reject(error);
