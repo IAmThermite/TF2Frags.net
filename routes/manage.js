@@ -127,23 +127,40 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
               || url.host === 'youtube.com'
               || url.host === 'youtu.be'
               || url.host === 'clips.twitch.tv') {
+          let code;
+          if (url.host === 'clips.twitch.tv') {
+            code = url.pathname.substr(1, url.pathname.length).split('/')[0];
+          } else { // must be youtube
+            if (url.host === 'youtu.be') {
+              code = url.pathname.substr(1, url.pathname.length).split('/')[0];
+            } else {
+              code = url.searchParams.get('v'); // extract the video id from the provided url (could be lots of different things)
+            }
+          }
+
+          if (!code) { // no code found
+            return utils.renderError(req, res, 400, 'Not a valid Twitch or YouTube URL');
+          }
+
           ClipController.getOneByCode(code).then((output) => { // check to see the clip exists already
-            return utils.renderError(req, res, 400, 'URL already saved!');
+            if (output) {
+              return utils.renderError(req, res, 400, 'URL already saved!');
+            }
+
+            document.type = 'url';
+            document.url = xss(url.href);
+            document.code = xss(code);
+
+            // upload clip to db
+            ClipController.addOne(document).then((output) => {
+              return res.redirect('/manage/upload');
+            }).catch((error) => {
+              utils.log('error', error);
+              return utils.renderError(req, res, 500, 'Failed to save URL, contact developer for more');
+            });
           }).catch((error) => {
             utils.log('error', error);
             return utils.renderError(req, res, 500, 'Could not save URL, contact developer for more');
-          });
-
-          document.type = 'url';
-          document.url = xss(url.href);
-          document.code = xss(code);
-
-          // upload clip to db
-          ClipController.addOne(document).then((output) => {
-            return res.redirect('/manage/upload');
-          }).catch((error) => {
-            utils.log('error', error);
-            return utils.renderError(req, res, 500, 'Failed to save URL, contact developer for more');
           });
         } else {
           return utils.renderError(req, res, 400, 'Not a valid Twitch or YouTube URL');

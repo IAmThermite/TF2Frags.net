@@ -21,7 +21,7 @@ router.get('/clips', (req, res) => {
   }
 
   // does the parameter have a value, if so use it
-  const limit = req.query.limit ? Number.parseInt(req.query.limit) : 50;
+  const limit = Number.isNaN(req.query.limit) ? Number.parseInt(req.query.limit) : 50;
   // latest first
   // only return name, url, order and when they were last played
   ClipController.getAll({type: 'url'}, {uploadedAt: -1}, {_id: 0, name: 1, url: 1, order: 1, lastPlayed: 1}, limit).then((output) => {
@@ -66,7 +66,7 @@ router.get('/clips/queue', (req, res) => {
   }
 
   // does the parameter have a value, if so use it
-  const limit = req.query.limit ? Number.parseInt(req.query.limit) : 50;
+  const limit = Number.isNaN(req.query.limit) ? Number.parseInt(req.query.limit) : 50;
   ClipController.getQueue(limit, {name: 1, url: 1, lastPlayed: 1, order: 1}).then((output) => {
     return res.send(output);
   }).catch((error) => {
@@ -203,10 +203,16 @@ router.post('/clips', utils.validApiKey, (req, res) => {
 });
 
 router.put('/clips/:_id', utils.validApiKey, (req, res) => {
-  const lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
-  const error = req.body.error | 0;
-  const reported = req.body.reported | 0;
-  ClipController.updateOne(req.params._id, {lastPlayed, error, reported}).then((output) => {
+  const document = {};
+  document.lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
+  document.error = Number.isNaN(req.body.error) ? Number.parseInt(error) : 0;
+  document.reported = Number.isNaN(req.body.reported) ? Number.parseInt(reported) : 0;
+
+  if (!Number.isNaN(req.body.order)) {
+    document.order = Number.parseInt(req.body.order);
+  }
+
+  ClipController.updateOne(req.params._id, document).then((output) => {
     utils.log('info', `Clip ${req.params._id} updated: ${JSON.stringify(output.result)}`);
     return res.send({updated: true});
   }).catch((error) => {
