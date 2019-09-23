@@ -21,7 +21,7 @@ router.get('/clips', (req, res) => {
   }
 
   // does the parameter have a value, if so use it
-  const limit = Number.isNaN(req.query.limit) ? Number.parseInt(req.query.limit) : 50;
+  const limit = Number.isNaN(req.query.limit) ? 50: Number.parseInt(req.query.limit);
   // latest first
   // only return name, url, order and when they were last played
   ClipController.getAll({type: 'url'}, {uploadedAt: -1}, {_id: 0, name: 1, url: 1, order: 1, lastPlayed: 1}, limit).then((output) => {
@@ -66,7 +66,7 @@ router.get('/clips/queue', (req, res) => {
   }
 
   // does the parameter have a value, if so use it
-  const limit = Number.isNaN(req.query.limit) ? Number.parseInt(req.query.limit) : 50;
+  const limit = Number.isNaN(req.query.limit) ? 50: Number.parseInt(req.query.limit);
   ClipController.getQueue(limit, {name: 1, url: 1, lastPlayed: 1, order: 1}).then((output) => {
     return res.send(output);
   }).catch((error) => {
@@ -104,17 +104,8 @@ router.get('/clips/reported', utils.validApiKey, (req, res) => {
 });
 
 router.get('/clips/next', utils.validApiKey, (req, res) => {
-  const lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
-  ClipController.getPrevious().then((output) => {
-    // order number needs to be greater than number of clips
-    const order = output.order + Math.floor(Math.random() * 1000); // add slightly randomized order
-    return ClipController.updateOne(output._id, {order, lastPlayed});
-  }).then((output) => {
-    utils.log('info', `Next clip called: ${JSON.stringify(output.result)}`);
-    return ClipController.updateToNextClip();
-  }).then((output) => {
-    return ClipController.setCurrent(output);
-  }).then((output) => {
+  ClipController.updateToNextClip().then((output) => {
+    utils.log('info', `Next clip called: ${JSON.stringify(output.code)}`);
     return res.send({next: true});
   }).catch((error) => {
     utils.log('error', error);

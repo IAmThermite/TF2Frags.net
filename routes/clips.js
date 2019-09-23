@@ -72,12 +72,12 @@ router.get('/reported', utils.ensureAuthenticated, utils.requireAdmin, (req, res
   });
 });
 
-router.get('/:code', utils.ensureAuthenticated, (req, res) => {
+router.get('/:code', (req, res) => {
   ClipController.getOneByCode(req.params.code).then((output) => {
-    if (!output) {
-      return utils.renderError(req, res, 404, 'Clip not found!');
+    if (output) {
+      return utils.render(req, res, 'clip', `Clip ${output.name}`, {clip: output});
     }
-    return utils.render(req, res, 'clip', `Clip ${output.name}`, {clip: output});
+    return utils.renderError(req, res, 404, 'Clip not found!');
   }).catch((error) => {
     utils.log('error', error);
     return utils.renderError(req, res, 500, 'Internal server error, contact developer');

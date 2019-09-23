@@ -22,9 +22,9 @@ describe('Clips Page', () => {
 });
 
 describe('Clips Page', () => {
-  describe('Get /clips/:id', () => {
-    it('should return status 400', () => {
-      return chai.request(app).get('/clips/1').then((res) => {
+  describe('Get /clips/:code', () => {
+    it('should return status 404 on invalid code', () => {
+      return chai.request(app).get('/clips/INVALID').then((res) => {
         expect(res).to.have.status(404);
       }).catch((error) => {
         throw error;
