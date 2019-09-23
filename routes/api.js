@@ -105,9 +105,9 @@ router.get('/clips/reported', utils.validApiKey, (req, res) => {
 
 router.get('/clips/next', utils.validApiKey, (req, res) => {
   const lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
-  ClipController.getCurrent().then((output) => {
+  ClipController.getPrevious().then((output) => {
     // order number needs to be greater than number of clips
-    const order = output.order + Math.floor(Math.random() * 1000) + 1000; // add at least 1000 to the order (between 1000 and 2099)
+    const order = output.order + Math.floor(Math.random() * 1000) - 500; // add slightly randomized order
     return ClipController.updateOne(output._id, {order, lastPlayed});
   }).then((output) => {
     utils.log('info', `Next clip called: ${JSON.stringify(output.result)}`);
