@@ -1,5 +1,6 @@
 # TF2Frags.net
-Code for TF2Frags Website
+
+Code for [TF2Frags Website](https://tf2frags.net).
 
 ## API Endpoints
 
@@ -7,7 +8,7 @@ Code for TF2Frags Website
 
 Lists all clips in a condensed form, sorted by last uploaded
 
-### GET /api/clips/:\_id
+### GET /api/clips/:code
 
 Lists details about specfic clip
 
@@ -35,7 +36,11 @@ Randomises the order of the clips
 
 Updates the current clips and loads the next one
 
-### POST /api/clips/:\_id (requires authorization)
+### POST /api/clips/ (requires authorization)
+
+Add a clip
+
+### PUT /api/clips/:\_id (requires authorization)
 
 Updates the clip by id
 
