@@ -5,6 +5,7 @@ const db = require('../src/db');
 
 let currentClip = undefined;
 let previousClip = undefined;
+let order = 300;
 
 /**
  * Gets all the clips from the database with the specified body
@@ -119,13 +120,6 @@ const getCurrent = () => new Promise((resolve, reject) => {
   }
 });
 
-/**
- * Set the current clip cached clip
- * @param {object} clip clip to cache
- */
-const setCurrent = (clip) => {
-  currentClip = clip;
-};
 
 /**
  * Get the previous cached clip
@@ -162,9 +156,10 @@ const getQueue = (limit, projection) => {
 const randomise = () => new Promise((resolve, reject) => {
   db.getDb().collection('clips').find({}).toArray().then((output) => {
     output.forEach((clip) => {
-      // randomise order (1-100)
-      db.getDb().collection('clips').updateOne({_id: new mongo.ObjectID(clip._id)}, {$set: {order: Math.floor(Math.random() * 100) + 1}}).catch((error) => {
+      // randomise order (1-300)
+      db.getDb().collection('clips').updateOne({_id: new mongo.ObjectID(clip._id)}, {$set: {order: Math.ceil(Math.random() * 300)}}).catch((error) => {
         utils.log('error', error);
+        order = 300; // reset order as well
         reject(error);
       });
     });
@@ -194,18 +189,22 @@ const addOne = (body) => new Promise((resolve, reject) => {
  */
 const updateToNextClip = () => new Promise((resolve, reject) => {
   const lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
-  const order = currentClip.order + Math.floor(Math.random() * 1000) + 1000; // add at least 1000 to the order (between 1000 and 2099)
+  const newOrder = order + 25 - Math.ceil(Math.random() * 50); // +/- 25 is safe
   // update current clip
   getCurrent().then((output) => {
-    return updateOne(output._id, {order, lastPlayed});
+    return updateOne(output._id, {order: newOrder, lastPlayed});
+  }).then((output) => {
+    return getOne(currentClip._id);
   }).then((output) => {
     // get next clip direct from db
+    previousClip = output;
     return getNext();
   }).then((output) => {
-    // update clip variables
-    previousClip = currentClip;
-    currentClip = output[0];
-    resolve(output[0]);
+    currentClip = output;
+    if (newOrder > order) { // update order
+      order = newOrder;
+    }
+    resolve(output);
   }).catch((error) => {
     reject(error);
   });
@@ -219,7 +218,7 @@ const updateToNextClip = () => new Promise((resolve, reject) => {
  */
 const updateOne = (_id, body) => new Promise((resolve, reject) => {
   db.getDb().collection('clips').updateOne({_id: new mongo.ObjectID(_id)}, {$set: body}).then((output) => {
-    resolve(output);
+    resolve(output.result);
   }).catch((error) => {
     reject(error);
   });
@@ -261,9 +260,9 @@ module.exports = {
   getCount,
   getNext,
   getCurrent,
-  setCurrent,
   getPrevious,
   getQueue,
+  order,
   randomise,
   addOne,
   updateToNextClip,

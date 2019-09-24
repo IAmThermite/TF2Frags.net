@@ -4,6 +4,7 @@ const router = require('express').Router();
 const utils = require('../src/utils');
 
 const ClipController = require('../contollers/clip');
+const BlacklistController = require('../contollers/blacklist');
 
 router.get('/', (req, res) => {
   res.send({});
@@ -162,25 +163,24 @@ router.post('/clips', utils.validApiKey, (req, res) => {
         return utils.sendError(req, res, 400, 'Not a valid Twitch or YouTube URL');
       }
 
-      ClipController.getOneByCode(code).then((output) => {
+      BlacklistController.isClipBlacklisted(code).then((output) => {
+        if (output) {
+          return utils.sendError(req, res, 400, 'Clip not allowed');
+        }
+        return ClipController.getOneByCode(code);
+      }).then((output) => {
         if (output) {
           return utils.sendError(req, res, 400, 'URL already saved!');
-        } else {
-          document.type = 'url';
-          document.url = xss(url.href);
-          document.code = xss(code);
-          ClipController.getPrevious().then((output) => {
-            document.order = req.body.order || output.order + 1; // if order is included in the body then use that
-            return ClipController.addOne(document);
-          }).then((output) => {
-            utils.log('info', `Clip ${document.url} uploaded by ${document.uploadedBy}`);
-            res.status(201);
-            return res.send({added: true});
-          }).catch((error) => {
-            utils.log('error', error);
-            return utils.sendError(req, res, 500, 'Could not save URL, contact developer for more');
-          });
         }
+        document.type = 'url';
+        document.url = xss(url.href);
+        document.code = xss(code);
+        document.order = Number.isNaN(req.body.order) ? ClipController.order + 1 : req.body.order; // if order is included in the body then use that
+        return ClipController.addOne(document);
+      }).then((output) => {
+        utils.log('info', `Clip ${document.url} uploaded by ${document.uploadedBy}`);
+        res.status(201);
+        return res.send({added: true});
       }).catch((error) => {
         utils.log('error', error);
         return utils.sendError(req, res, 500, 'Could not save URL, contact developer for more');
@@ -204,7 +204,7 @@ router.put('/clips/:_id', utils.validApiKey, (req, res) => {
   }
 
   ClipController.updateOne(req.params._id, document).then((output) => {
-    utils.log('info', `Clip ${req.params._id} updated: ${JSON.stringify(output.result)}`);
+    utils.log('info', `Clip ${req.params._id} updated: ${JSON.stringify(output)}`);
     return res.send({updated: true});
   }).catch((error) => {
     utils.log('error', error);

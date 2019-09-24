@@ -6,6 +6,7 @@ const router = require('express').Router();
 const utils = require('../src/utils');
 
 const ClipController = require('../contollers/clip');
+const BlacklistController = require('../contollers/blacklist');
 
 router.get('/', utils.ensureAuthenticated, (req, res) => {
   // get clips owned by user
@@ -29,6 +30,7 @@ router.get('/delete/:id', utils.ensureAuthenticated, (req, res) => {
       ClipController.deleteOne(req.params.id).then(() => { // delete from storage
         if (output.fileName) {
           utils.deleteFile(output.uploadedBy, output.fileName).catch((error) => {
+            utils.log('error', error);
             return utils.renderError(req, res, 500, 'Failed to delete clip, contact developer for more.');
           });
         }
@@ -58,9 +60,11 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
     }
   });
 
-  ClipController.getPrevious().then((output) => {
+  BlacklistController.isUserBlacklisted(req.user.id).then((output) => {
+    if (output) {
+      return utils.renderError(req, res, 403, 'Not allowed to upload.');
+    }
     const uploadedAt = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
-
     const document = {
       uploadedBy: req.user.id,
       alias: xss(req.body.alias),
@@ -71,7 +75,7 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
       lastPlayed: uploadedAt,
       error: 0,
       reported: 0,
-      order: output.order + Math.floor(Math.random(1000)), // needs to be slightly randomised
+      order: ClipController.order + 25 - Math.ceil(Math.random(50)), // +/- 25 is safe
     };
 
     if (req.files && !req.body.url) { // will not exist if file too large
@@ -142,7 +146,12 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
             return utils.renderError(req, res, 400, 'Not a valid Twitch or YouTube URL');
           }
 
-          ClipController.getOneByCode(code).then((output) => { // check to see the clip exists already
+          BlacklistController.isClipBlacklisted(code).then((output) => {
+            if (output) {
+              return utils.renderError(req, res, 400, 'Upload not allowed');
+            }
+            return ClipController.getOneByCode(code);
+          }).then((output) => { // check to see the clip exists already
             if (output) {
               return utils.renderError(req, res, 400, 'URL already saved!');
             }
@@ -173,7 +182,7 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
     }
   }).catch((error) => {
     utils.log('error', error);
-    return utils.renderError(req, res, 500, 'Failed to save URL, contact developer for more');
+    return utils.renderError(req, res, 500, 'Failed to load page, contact developer for more');
   });
 });
 
