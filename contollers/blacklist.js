@@ -25,7 +25,7 @@ const isClipBlacklisted = (code) => new Promise((resolve, reject) => {
  */
 const isUserBlacklisted = (userId) => new Promise((resolve, reject) => {
   // check if the clip is blacklisted because of yt/twitch channel exceptions
-  db.getDb().collection('blacklistedusers').find({userId}).limit(1).toArray().then((output) => {
+  db.getDb().collection('blacklistedUsers').find({userId}).limit(1).toArray().then((output) => {
     if (output[0]) {
       resolve(true);
     } else {
