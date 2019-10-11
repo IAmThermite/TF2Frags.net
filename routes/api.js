@@ -114,6 +114,16 @@ router.get('/clips/next', utils.validApiKey, (req, res) => {
   });
 });
 
+router.get('/clips/resetCache', utils.validApiKey, (req, res) => {
+  ClipController.clearCache().then(() => {
+    utils.log('info', 'Cache cleared');
+    return res.send({cleared: true});
+  }).catch((error) => {
+    utils.log('error', error);
+    return utils.sendError(req, res, 500, 'Internal server error, contact developer');
+  });
+});
+
 router.get('/clips/:code', (req, res) => {
   ClipController.getOneByCode(req.params.code).then((output) => {
     if (output) {
@@ -196,8 +206,8 @@ router.post('/clips', utils.validApiKey, (req, res) => {
 router.put('/clips/:_id', utils.validApiKey, (req, res) => {
   const document = {};
   document.lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
-  document.error = Number.isNaN(req.body.error) ? Number.parseInt(error) : 0;
-  document.reported = Number.isNaN(req.body.reported) ? Number.parseInt(reported) : 0;
+  document.error = Number.isNaN(req.body.error) ? 0 : Number.parseInt(error);
+  document.reported = Number.isNaN(req.body.reported) ? 0 : Number.parseInt(reported);
 
   if (!Number.isNaN(req.body.order)) {
     document.order = Number.parseInt(req.body.order);

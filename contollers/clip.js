@@ -170,6 +170,22 @@ const randomise = () => new Promise((resolve, reject) => {
   });
 });
 
+const clearCache = () => new Promise((resolve, reject) => {
+  currentClip = undefined;
+  previousClip = undefined;
+  Promise.all([
+    getNext(),
+    db.getDb().collection('clips').find({reported: 0, error: 0}).sort({lastPlayed: 1}).limit(1),
+  ]).then((output) => {
+    currentClip = output[0];
+    previousClip = output[1];
+    order = output[1][0].order;
+    resolve(output);
+  }).catch((error) => {
+    reject(error);
+  });
+});
+
 /**
  * Add a new clip to the db
  * @param {object} body clip to add
@@ -203,6 +219,8 @@ const updateToNextClip = () => new Promise((resolve, reject) => {
     currentClip = output;
     if (newOrder > order) { // update order
       order = newOrder;
+    } else {
+      order = order + 1;
     }
     resolve(output);
   }).catch((error) => {
@@ -264,6 +282,7 @@ module.exports = {
   getQueue,
   order,
   randomise,
+  clearCache,
   addOne,
   updateToNextClip,
   updateOne,
