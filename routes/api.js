@@ -206,8 +206,8 @@ router.post('/clips', utils.validApiKey, (req, res) => {
 router.put('/clips/:_id', utils.validApiKey, (req, res) => {
   const document = {};
   document.lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
-  document.error = Number.isNaN(req.body.error) ? 0 : Number.parseInt(error);
-  document.reported = Number.isNaN(req.body.reported) ? 0 : Number.parseInt(reported);
+  document.error = Number.isNaN(req.body.error) ? 0 : Number.parseInt(req.body.error);
+  document.reported = Number.isNaN(req.body.reported) ? 0 : Number.parseInt(req.bodyreported);
 
   if (!Number.isNaN(req.body.order)) {
     document.order = Number.parseInt(req.body.order);
