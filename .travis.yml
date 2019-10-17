@@ -1,0 +1,18 @@
+language: node_js
+
+node_js:
+  - 10
+
+services:
+  - mongodb
+
+install:
+  - npm install
+
+before_script:
+  - sleep 15
+  - mongo tf2frags_test --eval 'db.createUser({user:"tf2frags", pwd:"test", roles:["readWrite"]});'
+
+script:
+  - npm run lint
+  - npm test | coveralls

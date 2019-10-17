@@ -1,6 +1,11 @@
 # TF2Frags.net
 
+[![Coverage Status](https://coveralls.io/repos/github/IAmThermite/TF2Frags.net/badge.svg?branch=master)](https://coveralls.io/github/IAmThermite/TF2Frags.net?branch=master)
+[![Build Status](https://travis-ci.org/IAmThermite/TF2Frags.net.svg?branch=master)](https://travis-ci.org/IAmThermite/TF2Frags.net)
+
 Code for [TF2Frags Website](https://tf2frags.net).
+
+The mongodb database requires db.clips.createIndex({name:'text', description:'text'}) to be run in order for the search functionality to work.
 
 ## API Endpoints
 

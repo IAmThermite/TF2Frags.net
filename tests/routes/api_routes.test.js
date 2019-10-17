@@ -30,6 +30,24 @@ const clips = [
     name: 'TEST CLIP IGNORE',
     order: -1,
   },
+  {
+    url: 'https://youtu.be/CLIPNAME4',
+    uploadedBy: 1,
+    name: 'TEST CLIP IGNORE',
+    order: -1,
+  },
+  {
+    url: 'https://youtu.be/CLIPNAME5',
+    uploadedBy: 1,
+    name: 'TEST CLIP IGNORE',
+    order: -1,
+  },
+  {
+    url: 'https://youtu.be/CLIPNAME6',
+    uploadedBy: 1,
+    name: 'TEST CLIP IGNORE',
+    order: -1,
+  },
 ];
 
 const requireAPIKey = (route) => {
@@ -50,7 +68,7 @@ const requireAPIKey = (route) => {
   });
 
   it('should return 200 with valid auth', () => {
-    return chai.request(app).get(route).set('Authorization', 'key').then((res) => {
+    return chai.request(app).get(route).set('Authorization', process.env.API_KEY).then((res) => {
       expect(res).to.have.status(200);
       expect(res).to.be.json;
     }).catch((error) => {
@@ -58,6 +76,20 @@ const requireAPIKey = (route) => {
     });
   });
 };
+
+before(() => {
+  return Promise.all([ClipController.addOne(clips[3]), ClipController.addOne(clips[4]), ClipController.addOne(clips[5])]);
+});
+
+after(async () => {
+  clips.forEach(async (clip) => {
+    await ClipController.getOneByURL(clip.url).then(async (output) => {
+      await ClipController.deleteOne(output._id);
+    }).catch((error) => {
+      throw error;
+    });
+  });
+});
 
 describe('API Tests', () => {
   describe('POST /clips/', () => {
@@ -78,7 +110,7 @@ describe('API Tests', () => {
     });
 
     it('should add a yt clip', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', 'key').send(clips[0]).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send(clips[0]).then((res) => {
         expect(res).to.have.status(201);
         expect(res).to.be.json;
         assert(res.body.added);
@@ -88,7 +120,7 @@ describe('API Tests', () => {
     });
 
     it('should add a yt clip 2', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', 'key').send(clips[1]).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send(clips[1]).then((res) => {
         expect(res).to.have.status(201);
         expect(res).to.be.json;
         assert(res.body.added);
@@ -98,7 +130,7 @@ describe('API Tests', () => {
     });
 
     it('should add a twitch clip', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', 'key').send(clips[2]).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send(clips[2]).then((res) => {
         expect(res).to.have.status(201);
         expect(res).to.be.json;
         assert(res.body.added);
@@ -108,7 +140,7 @@ describe('API Tests', () => {
     });
 
     it('should reject a clip that has already been added', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', 'key').send(clips[0]).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send(clips[0]).then((res) => {
         expect(res).to.have.status(400);
         expect(res).to.be.json;
         assert(res.body.error);
@@ -118,7 +150,7 @@ describe('API Tests', () => {
     });
 
     it('should reject a clip with an ivalid url', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', 'key').send({url: 'https://tf2frags.net/'}).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send({url: 'https://tf2frags.net/'}).then((res) => {
         expect(res).to.have.status(400);
         expect(res).to.be.json;
         assert(res.body.error);
@@ -128,7 +160,7 @@ describe('API Tests', () => {
     });
 
     it('should reject a clip with an ivalid url 2', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', 'key').send({url: 'not a url'}).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send({url: 'not a url'}).then((res) => {
         expect(res).to.have.status(400);
         expect(res).to.be.json;
         assert(res.body.error);
@@ -138,7 +170,7 @@ describe('API Tests', () => {
     });
 
     it('should reject a clip with no code', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', 'key').send({url: 'https://clips.twitch.tv/'}).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send({url: 'https://clips.twitch.tv/'}).then((res) => {
         expect(res).to.have.status(400);
         expect(res).to.be.json;
         assert(res.body.error);
@@ -146,25 +178,10 @@ describe('API Tests', () => {
         throw error;
       });
     });
-
-    after(() => { // delete the one we created cos we dont need it anymore
-      return clips.forEach((clip) => {
-        ClipController.getOneByURL(clip.url).then((output) => {
-          ClipController.deleteOne(output._id).catch((error) => {
-            throw error;
-          });
-        }).catch((error) => {
-          throw error;
-        });
-      });
-    });
   });
 
   describe('PUT /api/clips/:id', () => {
-    let clip;
-    before(async () => {
-      clip = await ClipController.getCurrent();
-    });
+    const clip = clips[3];
 
     it('should return 401 without auth', () => {
       return chai.request(app).put(`/api/clips/${clip._id}`).then((res) => {
@@ -183,7 +200,7 @@ describe('API Tests', () => {
     });
 
     it('should return 200 on valid clip', () => {
-      return chai.request(app).put(`/api/clips/${clip._id}`).set('Authorization', 'key').then((res) => {
+      return chai.request(app).put(`/api/clips/${clip._id}`).set('Authorization', process.env.API_KEY).then((res) => {
         expect(res).to.have.status(200);
         expect(res).to.be.json;
         assert(res.body.updated);
@@ -377,7 +394,7 @@ describe('API Tests', () => {
     it('should change the order of the clips', async () => {
       try {
         const clip1 = await ClipController.getNext();
-        await chai.request(app).get('/api/clips/randomise').set('Authorization', 'key');
+        await chai.request(app).get('/api/clips/randomise').set('Authorization', process.env.API_KEY);
         const clip2 = await ClipController.getNext();
 
         assert(clip1._id !== clip2._id);
@@ -391,7 +408,7 @@ describe('API Tests', () => {
     requireAPIKey('/api/clips/error', 'get');
 
     it('should return clips with errors', () => {
-      return chai.request(app).get('/api/clips/error').set('Authorization', 'key').then((res) => {
+      return chai.request(app).get('/api/clips/error').set('Authorization', process.env.API_KEY).then((res) => {
         res.body.forEach((element) => {
           assert(element.error);
         });
@@ -405,7 +422,7 @@ describe('API Tests', () => {
     requireAPIKey('/api/clips/reported', 'get');
 
     it('should return clips with reports', () => {
-      return chai.request(app).get('/api/clips/reported').set('Authorization', 'key').then((res) => {
+      return chai.request(app).get('/api/clips/reported').set('Authorization', process.env.API_KEY).then((res) => {
         res.body.forEach((element) => {
           assert(element.reported);
         });
@@ -421,7 +438,7 @@ describe('API Tests', () => {
     it('should skip the current clip', async () => {
       try {
         const current = await ClipController.getCurrent();
-        await chai.request(app).get('/api/clips/next').set('Authorization', 'key');
+        await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
         const newCurrent = await ClipController.getCurrent();
 
         assert(newCurrent.code !== current.code);
@@ -433,7 +450,7 @@ describe('API Tests', () => {
     it('should update the set the previous clip to the last current clip', async () => {
       try {
         const current = await ClipController.getCurrent();
-        await chai.request(app).get('/api/clips/next').set('Authorization', 'key');
+        await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
         const newCurrent = await ClipController.getPrevious();
 
         assert(newCurrent.code === current.code);
@@ -445,7 +462,7 @@ describe('API Tests', () => {
     it('sets the current clip to the previous clips and changes the current clip', async () => {
       try {
         const current = await ClipController.getCurrent();
-        await chai.request(app).get('/api/clips/next').set('Authorization', 'key');
+        await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
         const previous = await ClipController.getPrevious();
         const newCurrent = await ClipController.getCurrent();
 

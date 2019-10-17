@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_ENV=production pm2 start server.js --watch --env production",
     "dev": "NODE_ENV=development nodemon server.js",
-    "test": "NODE_ENV=test nyc --reporter=lcov --reporter=text mocha --recursive tests/**/*.test.js  --exit",
+    "test": "NODE_ENV=test nyc --reporter=lcov --reporter=text mocha --timeout 10000 --recursive tests/**/*.test.js  --exit",
     "lint": "eslint ./"
   },
   "repository": {
@@ -30,7 +30,7 @@
     "express": "^4.17.1",
     "express-fileupload": "^1.1.5",
     "express-session": "^1.16.2",
-    "helmet": "^3.19.0",
+    "helmet": "^3.21.1",
     "mongodb": "^3.3.0",
     "morgan": "^1.9.1",
     "passport": "^0.4.0",
@@ -41,6 +41,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
+    "coveralls": "^3.0.7",
     "eslint": "^6.1.0",
     "eslint-config-google": "^0.13.0",
     "mocha": "^6.2.0",
