@@ -12,3 +12,6 @@ install:
 script:
   - npm run lint
   - npm test
+
+after_success:
+  - cat ./coverage/lcov.info | coveralls
