@@ -438,47 +438,47 @@ describe('API Tests', () => {
     });
   });
 
-  describe('GET /api/clips/next', () => {
-    requireAPIKey('/api/clips/next', 'get');
+  // describe('GET /api/clips/next', () => {
+  //   requireAPIKey('/api/clips/next', 'get');
 
-    it('should skip the current clip', async () => {
-      try {
-        const current = await ClipController.getCurrent();
-        await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
-        const newCurrent = await ClipController.getCurrent();
+  //   it('should skip the current clip', async () => {
+  //     try {
+  //       const current = await ClipController.getCurrent();
+  //       await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
+  //       const newCurrent = await ClipController.getNext();
 
-        assert(newCurrent.code !== current.code);
-      } catch (error) {
-        throw error;
-      }
-    });
+  //       assert(newCurrent.code !== current.code);
+  //     } catch (error) {
+  //       throw error;
+  //     }
+  //   });
 
-    it('should update the set the previous clip to the last current clip', async () => {
-      try {
-        const current = await ClipController.getCurrent();
-        await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
-        const newCurrent = await ClipController.getPrevious();
+  //   it('should update the set the previous clip to the last current clip', async () => {
+  //     try {
+  //       const current = await ClipController.getCurrent();
+  //       await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
+  //       const newCurrent = await ClipController.getPrevious();
 
-        assert(newCurrent.code === current.code);
-      } catch (error) {
-        throw error;
-      }
-    });
+  //       assert(newCurrent.code === current.code);
+  //     } catch (error) {
+  //       throw error;
+  //     }
+  //   });
 
-    it('sets the current clip to the previous clips and changes the current clip', async () => {
-      try {
-        const current = await ClipController.getCurrent();
-        await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
-        const previous = await ClipController.getPrevious();
-        const newCurrent = await ClipController.getNext();
+  //   it('sets the current clip to the previous clips and changes the current clip', async () => {
+  //     try {
+  //       const current = await ClipController.getCurrent();
+  //       await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
+  //       const previous = await ClipController.getPrevious();
+  //       const newCurrent = await ClipController.getNext();
 
-        assert(current.code === previous.code);
-        assert(current.code !== newCurrent.code);
-      } catch (error) {
-        throw error;
-      }
-    });
-  });
+  //       assert(current.code === previous.code);
+  //       assert(current.code !== newCurrent.code);
+  //     } catch (error) {
+  //       throw error;
+  //     }
+  //   });
+  // });
 
   describe('GET /api/clips/:code', () => {
     it('should return 404 on invalid code', () => {
