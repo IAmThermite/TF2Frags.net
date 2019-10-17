@@ -39,7 +39,7 @@ app.use(fileUpload({
 }));
 
 const store = new MongoDBStore({
-  uri: config.get('db.url'),
+  uri: process.env.DB_URL || config.get('db.url'),
   collection: 'sessions',
 });
 
