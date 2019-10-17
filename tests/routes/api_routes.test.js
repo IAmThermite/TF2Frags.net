@@ -3,6 +3,8 @@ const chaiHttp = require('chai-http');
 
 const ClipController = require('../../contollers/clip');
 
+const db = require('../../src/db');
+
 chai.use(chaiHttp);
 chai.should();
 
@@ -16,37 +18,37 @@ const clips = [
     url: 'https://youtu.be/CLIPNAME1',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: -1,
+    order: 1,
   },
   {
     url: 'https://youtube.com/watch?v=CLIPNAME2',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: -1,
+    order: 2,
   },
   {
     url: 'https://clips.twitch.tv/CLIPNAME3',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: -1,
+    order: 3,
   },
   {
     url: 'https://youtu.be/CLIPNAME4',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: -1,
+    order: 4,
   },
   {
     url: 'https://youtu.be/CLIPNAME5',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: -1,
+    order: 5,
   },
   {
     url: 'https://youtu.be/CLIPNAME6',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: -1,
+    order: 6,
   },
 ];
 
@@ -77,18 +79,22 @@ const requireAPIKey = (route) => {
   });
 };
 
-before(() => {
-  return Promise.all([ClipController.addOne(clips[3]), ClipController.addOne(clips[4]), ClipController.addOne(clips[5])]);
+before(async () => {
+  db.connectToServer(() => { // force the db to start early
+    return Promise.all([
+      ClipController.addOne(clips[3]),
+      ClipController.addOne(clips[4]),
+      ClipController.addOne(clips[5]),
+      db.getDb().collection('apiKeys').insertOne({key: 'key'}),
+    ]);
+  });
 });
 
 after(async () => {
-  clips.forEach(async (clip) => {
-    await ClipController.getOneByURL(clip.url).then(async (output) => {
-      await ClipController.deleteOne(output._id);
-    }).catch((error) => {
-      throw error;
-    });
-  });
+  return Promise.all([
+    db.getDb().collection('clips').deleteMany(),
+    db.getDb().collection('apiKeys').deleteMany(),
+  ]);
 });
 
 describe('API Tests', () => {
@@ -464,7 +470,7 @@ describe('API Tests', () => {
         const current = await ClipController.getCurrent();
         await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
         const previous = await ClipController.getPrevious();
-        const newCurrent = await ClipController.getCurrent();
+        const newCurrent = await ClipController.getNext();
 
         assert(current.code === previous.code);
         assert(current.code !== newCurrent.code);
