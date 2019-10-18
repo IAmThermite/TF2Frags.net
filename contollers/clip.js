@@ -44,6 +44,16 @@ const getOne = (_id, sort) => new Promise((resolve, reject) => {
 });
 
 /**
+ * Search for clips (db.clips.createIndex({name:'text', description:'text'}))
+ * @param {String} query the query to search for
+ * @param {Object} projection the projection to put on the result
+ * @param {Number} limit the max documents to return
+ * @return {Promise}
+ */
+const search = (query, projection, limit) => db.getDb().collection('clips').find({error: 0, reported: 0, $text: {$search: `\"${query}\"`, $caseSensitive: false}}).project(projection).limit(limit).toArray();
+
+
+/**
  * Get the clip based on the code field
  * @param {string} code the code of the clip
  * @return {Promise}
@@ -175,7 +185,7 @@ const clearCache = () => new Promise((resolve, reject) => {
   previousClip = undefined;
   Promise.all([
     getNext(),
-    db.getDb().collection('clips').find({reported: 0, error: 0}).sort({lastPlayed: 1}).limit(1),
+    db.getDb().collection('clips').find({reported: 0, error: 0}).sort({lastPlayed: 1}).limit(1).toArray(),
   ]).then((output) => {
     currentClip = output[0];
     previousClip = output[1];
@@ -272,6 +282,7 @@ const deleteOne = (_id) => new Promise((resolve, reject) => {
 module.exports = {
   getAll,
   getAllByUser,
+  search,
   getOne,
   getOneByCode,
   getOneByURL,

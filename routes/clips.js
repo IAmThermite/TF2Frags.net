@@ -1,3 +1,4 @@
+const xss = require('xss');
 const router = require('express').Router();
 
 const utils = require('../src/utils');
@@ -11,14 +12,24 @@ router.get('/', (req, res) => {
 
   // does the parameter have a value, if so use it
   const limit = req.query.limit ? Number.parseInt(req.query.limit) : 0;
-  // latest first
-  // only return name, url, order and when they were last played
-  ClipController.getAll({error: 0, reported: 0}, {uploadedAt: -1}, {}, limit).then((output) => {
-    return utils.render(req, res, 'clips', 'All Clips', {clips: output, header: 'All Clips'});
-  }).catch((error) => {
-    utils.log('error', error);
-    return utils.renderError(req, res, 500, 'Internal server error, contact developer');
-  });
+  if (req.query.q && xss(req.query.q) !== '') {
+    // does the parameter have a value, if so use it
+    ClipController.search(xss(req.query.q), {}, limit).then((output) => {
+      return utils.render(req, res, 'clips', 'Results', {clips: output, header: 'Results'});
+    }).catch((error) => {
+      utils.log('error', error);
+      return utils.renderError(req, res, 500, 'Internal server error, contact developer');
+    });
+  } else {
+    // latest first
+    // only return name, url, order and when they were last played
+    ClipController.getAll({error: 0, reported: 0}, {uploadedAt: -1}, {}, limit).then((output) => {
+      return utils.render(req, res, 'clips', 'All Clips', {clips: output, header: 'All Clips'});
+    }).catch((error) => {
+      utils.log('error', error);
+      return utils.renderError(req, res, 500, 'Internal server error, contact developer');
+    });
+  }
 });
 
 router.get('/current', (req, res) => {

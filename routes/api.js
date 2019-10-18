@@ -20,17 +20,27 @@ router.get('/clips', (req, res) => {
     res.status(400);
     return res.send({error: {code: 400, message: 'Limit parameter must be >= 0'}});
   }
-
   // does the parameter have a value, if so use it
   const limit = Number.isNaN(req.query.limit) ? 50: Number.parseInt(req.query.limit);
-  // latest first
-  // only return name, url, order and when they were last played
-  ClipController.getAll({type: 'url'}, {uploadedAt: -1}, {_id: 0, name: 1, url: 1, order: 1, lastPlayed: 1}, limit).then((output) => {
-    return res.send(output);
-  }).catch((error) => {
-    utils.log('error', error);
-    return utils.sendError(req, res, 500, 'Failed to get all clips');
-  });
+  const projection = {_id: 0, name: 1, url: 1, order: 1, lastPlayed: 1};
+
+  if (req.query.q) { // search
+    ClipController.search(xss(req.query.q), projection, limit).then((output) => {
+      return res.send(output);
+    }).catch((error) => {
+      utils.log('error', error);
+      return utils.sendError(req, res, 500, 'Failed to get all clips');
+    });
+  } else {
+    // latest first
+    // only return name, url, order and when they were last played
+    ClipController.getAll({type: 'url'}, {uploadedAt: -1}, projection, limit).then((output) => {
+      return res.send(output);
+    }).catch((error) => {
+      utils.log('error', error);
+      return utils.sendError(req, res, 500, 'Failed to get all clips');
+    });
+  }
 });
 
 router.get('/clips/count', (req, res) => {
@@ -78,7 +88,9 @@ router.get('/clips/queue', (req, res) => {
 
 router.get('/clips/randomise', utils.validApiKey, (req, res) => {
   utils.log('info', 'Randomise clips called');
-  ClipController.randomise().then((output) => {
+  ClipController.randomise().then(() => {
+    return ClipController.clearCache();
+  }).then(() => {
     return res.send({randomised: true});
   }).catch((error) => {
     utils.log('error', error);
