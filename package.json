@@ -28,7 +28,7 @@
     "ejs": "^2.6.2",
     "emoji-flags": "^1.2.0",
     "express": "^4.17.1",
-    "express-fileupload": "^1.1.5",
+    "express-fileupload": "^1.1.6",
     "express-session": "^1.16.2",
     "helmet": "^3.21.1",
     "mongodb": "^3.3.0",

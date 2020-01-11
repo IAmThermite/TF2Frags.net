@@ -1,4 +1,5 @@
 const xss = require('xss');
+const ObjectId = require('mongodb').ObjectId;
 const router = require('express').Router();
 
 const utils = require('../src/utils');
@@ -32,39 +33,6 @@ router.get('/', (req, res) => {
   }
 });
 
-router.get('/current', (req, res) => {
-  ClipController.getCurrent().then((output) => {
-    return utils.render(req, res, 'clip', 'Current Clip', {clip: output});
-  }).catch((error) => {
-    utils.log('error', error);
-    return utils.renderError(req, res, 500, 'Internal server error, contact developer');
-  });
-});
-
-router.get('/previous', (req, res) => {
-  ClipController.getPrevious().then((output) => {
-    return utils.render(req, res, 'clip', 'Previous Clip', {clip: output});
-  }).catch((error) => {
-    utils.log('error', error);
-    return utils.renderError(req, res, 500, 'Internal server error, contact developer');
-  });
-});
-
-router.get('/queue', (req, res) => {
-  if (req.query.limit && (Number.isNaN(Number.parseInt(req.query.limit)) || Number.parseInt(req.query.limit) < 0)) {
-    return utils.renderError(req, res, 400, 'Limit parameter must be >= 0');
-  }
-
-  // does the parameter have a value, if so use it
-  const limit = req.query.limit ? Number.parseInt(req.query.limit) : 50;
-  ClipController.getQueue(limit).then((output) => {
-    return utils.render(req, res, 'clips', 'Queue', {clips: output, header: 'Queue'});
-  }).catch((error) => {
-    utils.log('error', error);
-    return utils.renderError(req, res, 500, 'Internal server error, contact developer');
-  });
-});
-
 router.get('/error', utils.ensureAuthenticated, utils.requireAdmin, (req, res) => {
   ClipController.getAll({error: 1}).then((output) => {
     return utils.render(req, res, 'clips', 'Errored Clips', {clips: output, header: 'Errored'});
@@ -83,8 +51,13 @@ router.get('/reported', utils.ensureAuthenticated, utils.requireAdmin, (req, res
   });
 });
 
-router.get('/:code', (req, res) => {
-  ClipController.getOneByCode(req.params.code).then((output) => {
+router.get('/:id', (req, res) => {
+  try {
+    new ObjectId(req.params.id);
+  } catch (e) {
+    return utils.renderError(req, res, 400, 'Invalid clip ID');
+  }
+  ClipController.getOne(req.params.id).then((output) => {
     if (output) {
       return utils.render(req, res, 'clip', `Clip ${output.name}`, {clip: output});
     }

@@ -22,7 +22,7 @@ router.get('/clips', (req, res) => {
   }
   // does the parameter have a value, if so use it
   const limit = Number.isNaN(req.query.limit) ? 50: Number.parseInt(req.query.limit);
-  const projection = {_id: 0, name: 1, url: 1, order: 1, lastPlayed: 1};
+  const projection = {_id: 0, name: 1, url: 1, lastPlayed: 1};
 
   if (req.query.q) { // search
     ClipController.search(xss(req.query.q), projection, limit).then((output) => {
@@ -70,34 +70,6 @@ router.get('/clips/previous', (req, res) => {
   });
 });
 
-router.get('/clips/queue', (req, res) => {
-  if (req.query.limit && (Number.isNaN(Number.parseInt(req.query.limit)) || Number.parseInt(req.query.limit) < 0)) {
-    res.status(400);
-    return res.send({error: {code: 400, message: 'Limit parameter must be >= 0'}});
-  }
-
-  // does the parameter have a value, if so use it
-  const limit = Number.isNaN(req.query.limit) ? 50: Number.parseInt(req.query.limit);
-  ClipController.getQueue(limit, {name: 1, url: 1, lastPlayed: 1, order: 1}).then((output) => {
-    return res.send(output);
-  }).catch((error) => {
-    utils.log('error', error);
-    return utils.sendError(req, res, 500, 'Failed to get queue');
-  });
-});
-
-router.get('/clips/randomise', utils.validApiKey, (req, res) => {
-  utils.log('info', 'Randomise clips called');
-  ClipController.randomise().then(() => {
-    return ClipController.clearCache();
-  }).then(() => {
-    return res.send({randomised: true});
-  }).catch((error) => {
-    utils.log('error', error);
-    return utils.sendError(req, res, 500, 'Failed to randomise clips');
-  });
-});
-
 router.get('/clips/error', utils.validApiKey, (req, res) => {
   ClipController.getAll({error: 1}).then((output) => {
     return res.send(output);
@@ -116,27 +88,12 @@ router.get('/clips/reported', utils.validApiKey, (req, res) => {
   });
 });
 
-router.get('/clips/next', utils.validApiKey, (req, res) => {
-  ClipController.updateToNextClip().then((output) => {
-    utils.log('info', `Next clip called: ${JSON.stringify(output.code)}`);
-    return res.send({next: true});
-  }).catch((error) => {
-    utils.log('error', error);
-    return utils.sendError(req, res, 500, 'Internal server error, contact developer');
-  });
-});
-
-router.get('/clips/resetCache', utils.validApiKey, (req, res) => {
-  ClipController.clearCache().then(() => {
-    utils.log('info', 'Cache cleared');
-    return res.send({cleared: true});
-  }).catch((error) => {
-    utils.log('error', error);
-    return utils.sendError(req, res, 500, 'Internal server error, contact developer');
-  });
-});
-
-router.get('/clips/:code', (req, res) => {
+router.get('/clips/:id', (req, res) => {
+  try {
+    new ObjectId(req.params.id);
+  } catch (e) {
+    return utils.sendError(req, res, 400, 'Invalid clip ID');
+  }
   ClipController.getOneByCode(req.params.code).then((output) => {
     if (output) {
       return res.send(output);
@@ -166,9 +123,7 @@ router.post('/clips', utils.validApiKey, (req, res) => {
   try {
     const url = new URL(req.body.url.trim());
     // valid twitch or youtube url
-    if (url.host === 'www.youtube.com'
-          || url.host === 'youtube.com'
-          || url.host === 'youtu.be'
+    if (url.host.includes('youtu')
           || url.host === 'clips.twitch.tv') {
       let code;
       if (url.host === 'clips.twitch.tv') {
@@ -197,7 +152,6 @@ router.post('/clips', utils.validApiKey, (req, res) => {
         document.type = 'url';
         document.url = xss(url.href);
         document.code = xss(code);
-        document.order = Number.isNaN(req.body.order) ? ClipController.order + 1 : req.body.order; // if order is included in the body then use that
         return ClipController.addOne(document);
       }).then((output) => {
         utils.log('info', `Clip ${document.url} uploaded by ${document.uploadedBy}`);
@@ -220,10 +174,6 @@ router.put('/clips/:_id', utils.validApiKey, (req, res) => {
   document.lastPlayed = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
   document.error = Number.isNaN(req.body.error) ? 0 : Number.parseInt(req.body.error);
   document.reported = Number.isNaN(req.body.reported) ? 0 : Number.parseInt(req.bodyreported);
-
-  if (!Number.isNaN(req.body.order)) {
-    document.order = Number.parseInt(req.body.order);
-  }
 
   ClipController.updateOne(req.params._id, document).then((output) => {
     utils.log('info', `Clip ${req.params._id} updated: ${JSON.stringify(output)}`);

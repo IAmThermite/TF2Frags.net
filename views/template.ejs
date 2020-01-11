@@ -4,26 +4,27 @@
 
   <% include partials/header.ejs %>
   
-  <div class='container bg-dark text-light'>
-    <% include partials/navbar %>
+  <body>
+    <div class='container bg-dark text-light'>
+      <% include partials/navbar %>
 
-    <hr width="100%" style="background-color: red" />
+      <hr width="100%" style="background-color: red" />
 
-    <%- include(page) %>
+      <%- include(page) %>
 
-    <hr width="100%" style="background-color: red" />
-    
-    <% include partials/footer.ejs %>
-  </div>
+      <hr width="100%" style="background-color: red" />
+      
+      <% include partials/footer.ejs %>
+    </div>
 
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122940047-3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122940047-3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-    gtag('config', 'UA-122940047-3');
-  </script>
-
+      gtag('config', 'UA-122940047-3');
+    </script>
+  </body>
 </html>

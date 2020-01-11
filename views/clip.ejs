@@ -8,26 +8,24 @@
 </nav>
 <h3><%= data.clip.name %></h3>
 <p class="title">Type: <%= data.clip.type %></p>
-<% if(data.clip.type === 'url') { %>
-  <% if(data.clip.url.includes('youtu')) { %>
-    <iframe
-      width="100%"
-      height="600"
-      src="https://www.youtube.com/embed/<%= data.clip.code %>"
-      frameborder="0"
-      gesture="media"
-      allow="encrypted-media"
-      allowfullscreen>
-    </iframe>
-  <% } else { %>
-    <iframe
-      src="https://clips.twitch.tv/embed?clip=<%- data.clip.code %>"
-      height="600"
-      width="100%"
-      frameborder="0"
-      allowfullscreen="true">
-    </iframe>
-  <% } %>
+<% if(data.clip.type === 'youtube') { %>
+  <iframe
+    width="100%"
+    height="600"
+    src="https://www.youtube.com/embed/<%= data.clip.code %>"
+    frameborder="0"
+    gesture="media"
+    allow="encrypted-media"
+    allowfullscreen>
+  </iframe>
+<% } else if(data.clip.type === 'twitch') { %>
+  <iframe
+    src="https://clips.twitch.tv/embed?clip=<%- data.clip.code %>"
+    height="600"
+    width="100%"
+    frameborder="0"
+    allowfullscreen="true">
+  </iframe>
 <% } %>
-<p>Uploaded at: <%= data.clip.uploadedAt %> | Last played: <%= data.clip.lastPlayed %> | Order: <%= data.clip.order %></p>
+<p>Uploaded at: <%= new Date(data.clip.uploadedAt).toDateString() %> | Last played: <%= new Date(data.clip.lastPlayed).toDateString() %></p>
 <p><a href="https://steamcommunity.com/profiles/<%= data.clip.uploadedBy %>">Uploader</a></p>

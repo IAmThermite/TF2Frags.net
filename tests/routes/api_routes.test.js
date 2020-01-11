@@ -18,37 +18,31 @@ const clips = [
     url: 'https://youtu.be/CLIPNAME1',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: 1,
   },
   {
     url: 'https://youtube.com/watch?v=CLIPNAME2',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: 2,
   },
   {
     url: 'https://clips.twitch.tv/CLIPNAME3',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: 3,
   },
   {
     url: 'https://youtu.be/CLIPNAME4',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: 4,
   },
   {
     url: 'https://youtu.be/CLIPNAME5',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: 5,
   },
   {
     url: 'https://youtu.be/CLIPNAME6',
     uploadedBy: 1,
     name: 'TEST CLIP IGNORE',
-    order: 6,
   },
 ];
 
@@ -299,117 +293,6 @@ describe('API Tests', () => {
     });
   });
 
-  describe('GET /api/clips/current', () => {
-    it('should return 200', () => {
-      return chai.request(app).get('/api/clips/current').then((res) => {
-        expect(res).to.have.status(200);
-      });
-    });
-
-    it('should return current clip', () => {
-      return chai.request(app).get('/api/clips/current').then((res) => {
-        expect(res).to.be.json;
-        assert(res.body);
-        assert(res.body.name);
-      }).catch((error) => {
-        throw error;
-      });
-    });
-  });
-
-  describe('GET /api/clips/previous', () => {
-    it('should return 200', () => {
-      return chai.request(app).get('/api/clips/previous').then((res) => {
-        expect(res).to.have.status(200);
-      });
-    });
-
-    it('should return previous clip', () => {
-      return chai.request(app).get('/api/clips/previous').then((res) => {
-        expect(res).to.be.json;
-        assert(res.body);
-        assert(res.body.name);
-      }).catch((error) => {
-        throw error;
-      });
-    });
-  });
-
-  describe('GET /api/clips/queue', () => {
-    it('should return 200', () => {
-      return chai.request(app).get('/api/clips/queue').then((res) => {
-        expect(res).to.have.status(200);
-      }).catch((error) => {
-        throw error;
-      });
-    });
-
-    it('should return a clip', () => {
-      return chai.request(app).get('/api/clips/queue').then((res) => {
-        expect(res).to.be.json;
-        assert(res.body[0]);
-        assert(res.body[0].name);
-
-
-        assert(res.body[1]);
-        assert(res.body[1].name);
-        assert(res.body[1].order >= res.body[0].order);
-      }).catch((error) => {
-        throw error;
-      });
-    });
-
-    it('should accept valid limit parameters', () => {
-      return chai.request(app).get('/api/clips/queue?limit=3').then((res) => {
-        expect(res).to.be.json;
-        assert(res.body.length === 3);
-      }).catch((error) => {
-        throw error;
-      });
-    });
-
-    it('should accept valid limit parameters 2', () => {
-      return chai.request(app).get('/api/clips/queue?limit=0').then((res) => {
-        expect(res).to.be.json;
-        assert(res.body.length > 0);
-      }).catch((error) => {
-        throw error;
-      });
-    });
-
-    it('should reject invalid limit parameters', () => {
-      return chai.request(app).get('/api/clips/queue?limit=-1').then((res) => {
-        expect(res).to.have.status(400);
-      }).catch((error) => {
-        throw error;
-      });
-    });
-
-    it('should reject invalid limit parameters 2', () => {
-      return chai.request(app).get('/api/clips/queue?limit=abcd').then((res) => {
-        expect(res).to.have.status(400);
-      }).catch((error) => {
-        throw error;
-      });
-    });
-  });
-
-  describe('GET /api/clips/randomise', () => {
-    requireAPIKey('/api/clips/randomise', 'get');
-
-    it('should change the order of the clips', async () => {
-      try {
-        const clip1 = await ClipController.getNext();
-        await chai.request(app).get('/api/clips/randomise').set('Authorization', process.env.API_KEY);
-        const clip2 = await ClipController.getNext();
-
-        assert(clip1._id !== clip2._id);
-      } catch (error) {
-        throw error;
-      }
-    });
-  });
-
   describe('GET /api/clips/error', () => {
     requireAPIKey('/api/clips/error', 'get');
 
@@ -438,64 +321,11 @@ describe('API Tests', () => {
     });
   });
 
-  // describe('GET /api/clips/next', () => {
-  //   requireAPIKey('/api/clips/next', 'get');
-
-  //   it('should skip the current clip', async () => {
-  //     try {
-  //       const current = await ClipController.getCurrent();
-  //       await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
-  //       const newCurrent = await ClipController.getNext();
-
-  //       assert(newCurrent.code !== current.code);
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   });
-
-  //   it('should update the set the previous clip to the last current clip', async () => {
-  //     try {
-  //       const current = await ClipController.getCurrent();
-  //       await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
-  //       const newCurrent = await ClipController.getPrevious();
-
-  //       assert(newCurrent.code === current.code);
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   });
-
-  //   it('sets the current clip to the previous clips and changes the current clip', async () => {
-  //     try {
-  //       const current = await ClipController.getCurrent();
-  //       await chai.request(app).get('/api/clips/next').set('Authorization', process.env.API_KEY);
-  //       const previous = await ClipController.getPrevious();
-  //       const newCurrent = await ClipController.getNext();
-
-  //       assert(current.code === previous.code);
-  //       assert(current.code !== newCurrent.code);
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   });
-  // });
-
-  describe('GET /api/clips/:code', () => {
-    it('should return 404 on invalid code', () => {
+  describe('GET /api/clips/:id', () => {
+    it('should return 400 on invalid id', () => {
       return chai.request(app).get('/api/clips/NOTAVALIDCODE').then((res) => {
-        expect(res).to.have.status(404);
+        expect(res).to.have.status(400);
         expect(res).to.be.json;
-      }).catch((error) => {
-        throw error;
-      });
-    });
-
-    it('should return 200 on valid code', async () => {
-      const clip = await ClipController.getNext();
-      return chai.request(app).get(`/api/clips/${clip.code}`).then((res) => {
-        expect(res).to.have.status(200);
-        expect(res).to.be.json;
-        assert(res.body.name);
       }).catch((error) => {
         throw error;
       });

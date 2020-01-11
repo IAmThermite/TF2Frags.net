@@ -21,26 +21,6 @@ Lists details about specfic clip
 
 Returns the amount of valid clips submitted
 
-### GET [/api/clips/queue](https://tf2frags.net/api/clips/queue)
-
-Returns the next 20 clips in the queue
-
-### GET [/api/clips/current](https://tf2frags.net/api/clips/current)
-
-Returns extra information about the current clip
-
-### GET [/api/clips/previous](https://tf2frags.net/api/clips/previous)
-
-Returns some information about the previous clip
-
-### GET /api/clips/randomise (requires authorization)
-
-Randomises the order of the clips
-
-### POST /api/clips/next (requires authorization)
-
-Updates the current clips and loads the next one
-
 ### POST /api/clips/ (requires authorization)
 
 Add a clip

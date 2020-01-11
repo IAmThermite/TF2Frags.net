@@ -64,7 +64,7 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
     if (output) {
       return utils.renderError(req, res, 403, 'Not allowed to upload.');
     }
-    const uploadedAt = new Date().toLocaleString().replace(/\//g, '-').replace(', ', '-');
+    const uploadedAt = new Date().toISOString();
     const document = {
       uploadedBy: req.user.id,
       alias: xss(req.body.alias),
@@ -75,7 +75,6 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
       lastPlayed: uploadedAt,
       error: 0,
       reported: 0,
-      order: ClipController.order + 25 - Math.ceil(Math.random(50)), // +/- 25 is safe
     };
 
     if (req.files && !req.body.url) { // will not exist if file too large
@@ -134,12 +133,14 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
           let code;
           if (url.host === 'clips.twitch.tv') {
             code = url.pathname.substr(1, url.pathname.length).split('/')[0];
+            document.type = 'twitch';
           } else { // must be youtube
             if (url.host === 'youtu.be') {
               code = url.pathname.substr(1, url.pathname.length).split('/')[0];
             } else {
               code = url.searchParams.get('v'); // extract the video id from the provided url (could be lots of different things)
             }
+            document.type = 'youtube';
           }
 
           if (!code) { // no code found
@@ -156,7 +157,6 @@ router.post('/upload', utils.ensureAuthenticated, (req, res) => {
               return utils.renderError(req, res, 400, 'URL already saved!');
             }
 
-            document.type = 'url';
             document.url = xss(url.href);
             document.code = xss(code);
 

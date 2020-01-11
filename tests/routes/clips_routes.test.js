@@ -8,7 +8,7 @@ const expect = chai.expect;
 
 const app = require('../../server');
 
-describe('Clips Page', () => {
+describe('Clips Routes', () => {
   describe('Get /clips/', () => {
     it('should return status 200', () => {
       return chai.request(app).get('/clips/').then((res) => {
@@ -21,11 +21,11 @@ describe('Clips Page', () => {
   });
 });
 
-describe('Clips Page', () => {
-  describe('Get /clips/:code', () => {
-    it('should return status 404 on invalid code', () => {
+describe('Clips Routes', () => {
+  describe('Get /clips/:id', () => {
+    it('should return status 400 on invalid code', () => {
       return chai.request(app).get('/clips/INVALID').then((res) => {
-        expect(res).to.have.status(404);
+        expect(res).to.have.status(400);
       }).catch((error) => {
         throw error;
       });

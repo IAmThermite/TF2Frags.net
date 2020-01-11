@@ -1,15 +1,4 @@
 <h2><%= data.header %></h2>
-<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-  <ul class="navbar-nav">
-    <li class="nav-item"><a class="nav-link" href="/clips/">All</a></li>
-    <li class="nav-item"><a class="nav-link" href="/clips/queue">Queue</a></li>
-    <li class="nav-item"><a class="nav-link" href="/clips/current">Current</a></li>
-    <li class="nav-item"><a class="nav-link" href="/clips/previous">Previous</a></li>
-    <form action="/clips" method="GET">
-      <input class="form-control" name="q" type="text" placeholder="Search" aria-label="Search" />
-    </form>
-  </ul>
-</nav>
 <div class="table-responsive">
 <table class="table table-dark table-striped">
   <thead>
@@ -18,21 +7,19 @@
       <th scope="col">Description</th>
       <th scope="col">Uploaded at</th>
       <th scope="col">Last played</th>
-      <th scope="col">Order</th>
     </tr>
   </thead>
   <tbody>
-  <% for(let i = 0; i < data.clips.length; i++) { %>
-    <tr>
-      <td><a href="/clips/<%= data.clips[i].code %>"><%= data.clips[i].name %></a></td>
-      <% if (data.clips[i].type === "url") { %>
-        <td><a href="<%= data.clips[i].url %>"><%= data.clips[i].url%></a></td>
+    <% for(let i = 0; i < data.clips.length; i++) { %>
+      <tr>
+        <td><a href="/clips/<%= data.clips[i]._id %>"><%= data.clips[i].name %></a></td>
+        <% if (data.clips[i].type === "youtube" || data.clips[i].type === "twitch") { %>
+          <td><a href="<%= data.clips[i].url %>"><%= data.clips[i].url%></a></td>
         <% } else {%>
           <td><%= data.clips[i].description%></td>
         <% } %>
-        <td><%= data.clips[i].uploadedAt%></td>
-        <td><%= data.clips[i].lastPlayed %></td>
-        <td><%= data.clips[i].order %></td>
+        <td><%= new Date(data.clips[i].uploadedAt).toDateString() %></td>
+        <td><%= new Date(data.clips[i].lastPlayed).toDateString() %></td>
       </tr>
     <% } %>
   </tbody>

@@ -27,13 +27,13 @@ app.use(bodyParser.json());
 
 app.use(fileUpload({
   limits: {
-    fileSize: 100000000, // 100mb
+    fileSize: 150000000, // 150mb
   },
   useTempFiles: false,
   tempFileDir: '/tmp/',
   abortOnLimit: true, // won't set req.files when too large
   limitHandler: (req, res, next) => {
-    utils.renderError(req, res, 413, 'File size too large! (Max 100MB)');
+    utils.renderError(req, res, 413, 'File size too large! (Max 150MB)');
     next();
   },
 }));
