@@ -6,6 +6,10 @@ node_js:
 services:
   - mongodb
 
+before_install:
+  - sleep 15
+  - mongo tf2frags --eval 'db.apiKeys.insert({name:"test", key:"test"})'
+
 install:
   - npm install
 

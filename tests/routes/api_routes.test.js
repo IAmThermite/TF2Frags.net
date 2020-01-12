@@ -13,6 +13,8 @@ const assert = chai.assert;
 
 const app = require('../../server');
 
+const apiKey = process.env.API_KEY;
+
 const clips = [
   {
     url: 'https://youtu.be/CLIPNAME1',
@@ -64,7 +66,7 @@ const requireAPIKey = (route) => {
   });
 
   it('should return 200 with valid auth', () => {
-    return chai.request(app).get(route).set('Authorization', process.env.API_KEY).then((res) => {
+    return chai.request(app).get(route).set('Authorization', apiKey).then((res) => {
       expect(res).to.have.status(200);
       expect(res).to.be.json;
     }).catch((error) => {
@@ -110,7 +112,7 @@ describe('API Tests', () => {
     });
 
     it('should add a yt clip', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send(clips[0]).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', apiKey).send(clips[0]).then((res) => {
         expect(res).to.have.status(201);
         expect(res).to.be.json;
         assert(res.body.added);
@@ -120,7 +122,7 @@ describe('API Tests', () => {
     });
 
     it('should add a yt clip 2', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send(clips[1]).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', apiKey).send(clips[1]).then((res) => {
         expect(res).to.have.status(201);
         expect(res).to.be.json;
         assert(res.body.added);
@@ -130,7 +132,7 @@ describe('API Tests', () => {
     });
 
     it('should add a twitch clip', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send(clips[2]).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', apiKey).send(clips[2]).then((res) => {
         expect(res).to.have.status(201);
         expect(res).to.be.json;
         assert(res.body.added);
@@ -140,7 +142,7 @@ describe('API Tests', () => {
     });
 
     it('should reject a clip that has already been added', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send(clips[0]).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', apiKey).send(clips[0]).then((res) => {
         expect(res).to.have.status(400);
         expect(res).to.be.json;
         assert(res.body.error);
@@ -150,7 +152,7 @@ describe('API Tests', () => {
     });
 
     it('should reject a clip with an ivalid url', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send({url: 'https://tf2frags.net/'}).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', apiKey).send({url: 'https://tf2frags.net/'}).then((res) => {
         expect(res).to.have.status(400);
         expect(res).to.be.json;
         assert(res.body.error);
@@ -160,7 +162,7 @@ describe('API Tests', () => {
     });
 
     it('should reject a clip with an ivalid url 2', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send({url: 'not a url'}).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', apiKey).send({url: 'not a url'}).then((res) => {
         expect(res).to.have.status(400);
         expect(res).to.be.json;
         assert(res.body.error);
@@ -170,7 +172,7 @@ describe('API Tests', () => {
     });
 
     it('should reject a clip with no code', () => {
-      return chai.request(app).post('/api/clips/').set('Authorization', process.env.API_KEY).send({url: 'https://clips.twitch.tv/'}).then((res) => {
+      return chai.request(app).post('/api/clips/').set('Authorization', apiKey).send({url: 'https://clips.twitch.tv/'}).then((res) => {
         expect(res).to.have.status(400);
         expect(res).to.be.json;
         assert(res.body.error);
@@ -200,7 +202,7 @@ describe('API Tests', () => {
     });
 
     it('should return 200 on valid clip', () => {
-      return chai.request(app).put(`/api/clips/${clip._id}`).set('Authorization', process.env.API_KEY).then((res) => {
+      return chai.request(app).put(`/api/clips/${clip._id}`).set('Authorization', apiKey).then((res) => {
         expect(res).to.have.status(200);
         expect(res).to.be.json;
         assert(res.body.updated);
@@ -297,7 +299,7 @@ describe('API Tests', () => {
     requireAPIKey('/api/clips/error', 'get');
 
     it('should return clips with errors', () => {
-      return chai.request(app).get('/api/clips/error').set('Authorization', process.env.API_KEY).then((res) => {
+      return chai.request(app).get('/api/clips/error').set('Authorization', apiKey).then((res) => {
         res.body.forEach((element) => {
           assert(element.error);
         });
@@ -311,7 +313,7 @@ describe('API Tests', () => {
     requireAPIKey('/api/clips/reported', 'get');
 
     it('should return clips with reports', () => {
-      return chai.request(app).get('/api/clips/reported').set('Authorization', process.env.API_KEY).then((res) => {
+      return chai.request(app).get('/api/clips/reported').set('Authorization', apiKey).then((res) => {
         res.body.forEach((element) => {
           assert(element.reported);
         });

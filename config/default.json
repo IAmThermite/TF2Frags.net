@@ -5,7 +5,7 @@
     "sessionSecret": "secret key"
   },
   "db": {
-    "url": "mongodb://username:password@localhost:27017/tf2frags",
+    "url": "mongodb://localhost:27017/tf2frags",
     "database": "tf2frags"
   },
   "steam": {
